@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <%- include('partials/head') %>
+  </head>
+  <body>
+    <%- include('partials/header') %>
+    <main
+      class="container mx-auto bg-white shadow-lg rounded-lg p-8 mt-10 max-w-xl"
+    >
+      <form action="/host/add-home" method="POST" class="space-y-4">
+        <input
+          type="text"
+          name="homeName"
+          placeholder="Enter your home name"
+          class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-500"
+          required
+        />
+        <input
+          type="number"
+          name="price"
+          placeholder="Price per night"
+          class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-500"
+          required
+        />
+        <input
+          type="text"
+          name="location"
+          placeholder="Location"
+          class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-500"
+          required
+        />
+        <input
+          type="number"
+          name="rating"
+          placeholder="Rating (1-5)"
+          min="1"
+          max="5"
+          class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-500"
+          required
+        />
+        <input
+          type="url"
+          name="photo"
+          placeholder="Photo URL (optional)"
+          class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-500"
+        />
+        <button
+          type="submit"
+          class="w-full bg-red-500 text-white py-2 px-4 rounded hover:bg-red-400 transition duration-300"
+        >
+          Add Home
+        </button>
+      </form>
+    </main>
+  </body>
+</html>
