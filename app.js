@@ -33,10 +33,11 @@ app.use("/host", hostRouter);
 
 app.use(express.static(path.join(rootDir, "public")));
 
+//import controllers local module
+const homesController = require("./controllers/home.js");
+
 // use of 404 error  when  resp not send
-app.use((req, res, next) => {
-  res.status(404).render("error", { PageTitle: "Page Not Found" , currentPage :'404'});
-});
+app.use(homesController.addError);
 const PORT = 3012;
 app.listen(PORT, () => {
   console.log(`Server is running on  address http://localhost:${PORT}`);

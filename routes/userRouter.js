@@ -9,13 +9,12 @@ const userRouter = express.Router();
 
 // import pathUtils from utils folder
 const rootDir = require("../utils/pathUtils.js");
-const { registerHome } = require("./hostRouter.js");
+
+//import controller  local module
+const homesController = require("../controllers/home.js");
 
 // 1  middleware
-userRouter.get("/", (req, res, next) => {
-  console.log(registerHome);
-  res.render("Home", { registerHome, PageTitle: "airbnb Home" , currentPage :'Home' });
-});
+userRouter.get("/", homesController.getHomes);
 //  for every path and   ye user ke liye hai
 
 // export
