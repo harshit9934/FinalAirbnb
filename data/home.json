@@ -1,1 +1,16 @@
-[{"homeName":"X","price":"3","location":"fd","rating":"1","photo":""},{"homeName":"d","price":"2","location":"d","rating":"4","photo":""}]
+[
+  {
+    "homeName": "Mera  Ghrr",
+    "price": "999",
+    "location": "Lucknow",
+    "rating": "3",
+    "photo": ""
+  },
+  {
+    "homeName": "sbaka ghrr",
+    "price": "33",
+    "location": "kanpur",
+    "rating": "3",
+    "photo": ""
+  }
+]

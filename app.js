@@ -6,11 +6,10 @@ const path = require("path");
 
 const app = express();
 app.set("view engine", "ejs");
-app.set("views", "views");
+app.set("views", path.join(__dirname, "views"));
 
-// import userRouter
-const userRouter = require("./routes/userRouter.js");
-const { hostRouter } = require("./routes/hostRouter.js");
+// import routers
+const hostRouter = require("./routes/hostRouter.js");
 
 // import pathUtils from utils folder
 const rootDir = require("./utils/pathUtils.js");
@@ -25,16 +24,20 @@ app.use((req, res, next) => {
 // use of body-parser
 app.use(bodyParser.urlencoded({ extended: false }));
 
-//  use  userRouter
-app.use(userRouter);
+// import controllers local module
+const homesController = require("./controllers/storeController.js");
+
+// main site routes
+app.get("/", homesController.getIndex);
+app.get("/index", homesController.getIndex);
+app.get("/homes", homesController.getHomes);
+app.get("/bookings", homesController.getBookings);
+app.get("/favourites", homesController.getFavouriteList);
 
 // use of host router
 app.use("/host", hostRouter);
 
 app.use(express.static(path.join(rootDir, "public")));
-
-//import controllers local module
-const homesController = require("./controllers/home.js");
 
 // use of 404 error  when  resp not send
 app.use(homesController.addError);
