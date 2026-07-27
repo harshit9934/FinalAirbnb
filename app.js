@@ -10,6 +10,10 @@ app.set("views", path.join(__dirname, "views"));
 
 // import routers
 const hostRouter = require("./routes/hostRouter.js");
+const storeRouter = require("./routes/storeRouter.js");
+
+// import controllers local module
+const homesController = require("./controllers/storeController.js");
 
 // import pathUtils from utils folder
 const rootDir = require("./utils/pathUtils.js");
@@ -24,18 +28,10 @@ app.use((req, res, next) => {
 // use of body-parser
 app.use(bodyParser.urlencoded({ extended: false }));
 
-// import controllers local module
-const homesController = require("./controllers/storeController.js");
-
-// main site routes
-app.get("/", homesController.getIndex);
-app.get("/index", homesController.getIndex);
-app.get("/homes", homesController.getHomes);
-app.get("/bookings", homesController.getBookings);
-app.get("/favourites", homesController.getFavouriteList);
-
 // use of host router
 app.use("/host", hostRouter);
+// use of store router (handles /, /homes, /bookings, /favourites, /homes/:homeId)
+app.use(storeRouter);
 
 app.use(express.static(path.join(rootDir, "public")));
 
