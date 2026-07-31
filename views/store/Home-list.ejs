@@ -39,8 +39,9 @@
                   <p class="flex items-center">
                     <span class="font-semibold mr-2">Rating:</span>
                     <span class="text-yellow-500">★</span> <%= home.rating %>/5
-                  </p>
-                  <button class="bg-red-400 p-2">Book</button>
+                  </p><br/>
+                 <a  class="bg-green-300 p-2" href="/homes/<%= home.id%>">Details</a><br/><br>
+                  <%- include('../partials/favourite' , ({ home: home })) %>
                 </div>
               </div>
             </div>

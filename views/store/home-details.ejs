@@ -1,0 +1,26 @@
+<%- include('../partials/head') %>
+  <body>
+    <%- include('../partials/header') %>
+    
+    <main class="container mx-auto bg-white shadow-lg rounded-lg p-8 mt-10 max-w-6xl">
+      <% if (!home) { %>
+        <h2 class="text-3xl text-gray-800 mb-6">Home Not Found</h2>
+      <% } else { %>
+        <h2 class="text-3xl text-red-500 mb-6">Home Details</h2>
+        <div class="space-y-4">
+          <h3 class="text-2xl font-bold"><%= home.homeName %></h3>
+          <p><strong>Price:</strong> Rs <%= home.price %>/night</p>
+          <p><strong>Location:</strong> <%= home.location %></p>
+          <p><strong>Rating:</strong> <%= home.rating %>/5</p>
+          <% if(home.photo) { %>
+            <img src="<%= home.photo %>" alt="<%= home.homeName %>" class="w-50 h-64 object-cover rounded-lg">
+          <% } %>
+          <div>
+            <%- include('../partials/favourite') %>
+          </div>
+        </div>
+        
+      <% } %>
+    </main>
+  </body>
+</html>

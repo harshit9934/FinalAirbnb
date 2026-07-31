@@ -8,12 +8,19 @@
     <main
       class="container mx-auto bg-white shadow-lg rounded-lg p-8 mt-10 max-w-xl"
     >
-      <form action="/host/add-home" method="POST" class="space-y-4">
+      <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">
+        <%= editing ? "Edit" : "Register"%>  Home on Airbnb
+      </h1>
+      <form action="/host/<%= editing ? "edit-home" : "add-home" %>" method="POST" class="space-y-4">
+        <% if (editing) { %>
+          <input type="hidden" name="homeId" value="<%= home.id %>" />
+        <% } %>
         <input
           type="text"
           name="homeName"
           placeholder="Enter your home name"
           class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-500"
+          value="<%= editing ? home.homeName : '' %>"
           required
         />
         <input
@@ -21,6 +28,7 @@
           name="price"
           placeholder="Price per night"
           class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-500"
+          value="<%= editing ? home.price : '' %>"
           required
         />
         <input
@@ -28,6 +36,7 @@
           name="location"
           placeholder="Location"
           class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-500"
+          value="<%= editing ? home.location : '' %>"
           required
         />
         <input
@@ -37,19 +46,21 @@
           min="1"
           max="5"
           class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-500"
+          value="<%= editing ? home.rating : '' %>"
           required
         />
         <input
-          type="url"
+          type="text"
           name="photo"
           placeholder="Photo URL (optional)"
           class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-500"
+          value="<%= editing ? home.photo : '' %>"
         />
         <button
           type="submit"
           class="w-full bg-red-500 text-white py-2 px-4 rounded hover:bg-red-400 transition duration-300"
         >
-          Add Home
+          <%= editing ? "Save Changes" : "Add Home" %>
         </button>
       </form>
     </main>

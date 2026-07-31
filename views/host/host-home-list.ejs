@@ -40,10 +40,13 @@
                     <span class="font-semibold mr-2">Rating:</span>
                     <span class="text-yellow-500">★</span> <%= home.rating %>/5
                   </p>
-                  <button class="bg-red-500 p-2">Edit</button>
-                  <button class="bg-red-500 p-2">Delete</button>
+                  <br>
+                  <a href="/host/edit-home/<%=home.id%>?editing=true" class="bg-green-300 p-2">Edit</a>
+                  <form action="/host/delete-home/<%= home.id%>" method="POST"><br>
+                  <button type ="submit" class="bg-green-300 p-2">Delete</button>
+                  </form>
                 </div>
-              </div>
+              </div> 
             </div>
          <% })%>
           </div>

@@ -11,14 +11,25 @@ const storeRouter = express.Router();
 const rootDir = require("../utils/pathUtils.js");
 
 //import controller  local module
-const homesController = require("../controllers/storeController.js");
+const storeController = require("../controllers/storeController.js");
 
 // 1  middleware
-storeRouter.get("/", homesController.getIndex);
-storeRouter.get("/homes", homesController.getHomes);
+storeRouter.get("/", storeController.getIndex);
+storeRouter.get("/homes", storeController.getHomes);
 //  for every path and   ye user ke liye hai
-storeRouter.get("/bookings", homesController.getBookings);
-storeRouter.get("/favourites", homesController.getFavouriteList);
+storeRouter.get("/bookings", storeController.getBookings);
+storeRouter.get("/favourites", storeController.getFavouriteList); // add  fav get req
+
+//handeling   for /homes /:home-id.
+storeRouter.get("/homes/:homeId", storeController.getHomesDetails);
+//handle fav post req
+storeRouter.post("/favourites", storeController.postAddToFavourite);
+
+// delete home from favourite
+storeRouter.post(
+  "/favourites/delete/:homeId",
+  storeController.postRemoveFromFavourite,
+);
 
 // export
 module.exports = storeRouter;
