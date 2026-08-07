@@ -15,6 +15,8 @@ const storeRouter = require("./routes/storeRouter.js");
 // import controllers local module
 const homesController = require("./controllers/storeController.js");
 
+const { mongoConnect } = require("./utils/databaseUtil.js");
+
 // import pathUtils from utils folder
 const rootDir = require("./utils/pathUtils.js");
 
@@ -37,7 +39,14 @@ app.use(express.static(path.join(rootDir, "public")));
 
 // use of 404 error  when  resp not send
 app.use(homesController.addError);
-const PORT = 3012;
-app.listen(PORT, () => {
-  console.log(`Server is running on  address http://localhost:${PORT}`);
+
+const PORT = 3016;
+mongoConnect((err) => {
+  if (err) {
+    console.error("Failed to connect to MongoDB, server not started.");
+    return;
+  }
+  app.listen(PORT, () => {
+    console.log(`Server is running on  address http://localhost:${PORT}`);
+  });
 });

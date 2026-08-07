@@ -1,86 +1,89 @@
-// core modules
-const path = require("path");
-const fs = require("fs");
-const rootDir = require("../utils/pathUtils.js");
-const Favourite = require("./favourite.js");
+// import database utils
+const { getDB } = require("../utils/databaseUtil.js");
+const { ObjectId } = require("mongodb");
 
 module.exports = class Home {
-  constructor(homeName, price, location, rating, photo) {
+  constructor(
+    homeName,
+    price,
+    location,
+    rating,
+    photo,
+    description,
+    id = null,
+  ) {
     this.homeName = homeName;
     this.price = price;
     this.location = location;
     this.rating = rating;
     this.photo = photo;
+    this.description = description;
+    this.id = id;
   }
 
   save() {
-    Home.fetchAll((registerHome) => {
-      // phele register home ko feth kr ke lao
+    const db = getDB();
+    if (this.id) {
+      // perform an update if an id is present
+      return db.collection("homes").updateOne(
+        { _id: new ObjectId(this.id) },
+        {
+          $set: {
+            homeName: this.homeName,
+            price: this.price,
+            location: this.location,
+            rating: this.rating,
+            photo: this.photo,
+            description: this.description,
+          },
+        },
+      );
+    }
+    // otherwise insert a new home
+    return db.collection("homes").insertOne(this);
+  }
 
-      if (this.id) {
-        // edit home case
-        registerHome = registerHome.map((home) => {
-          if (home.id === this.id) {
-            return this;
-          }
+  static fetchAll() {
+    const db = getDB();
+    return db
+      .collection("homes")
+      .find()
+      .toArray()
+      .then((homes) => {
+        return homes.map((home) => {
+          home.id = home._id.toString();
           return home;
         });
-      } else {
-        //add home case
-        this.id = Math.random().toString();
-        registerHome.push(this);
-      }
-      const homeDataPath = path.join(rootDir, "data", "home.json"); // joint the path for write data
-      // write  + error handeling
-      fs.writeFile(homeDataPath, JSON.stringify(registerHome), (error) => {
-        console.log("file writing concluded ", error);
       });
-    });
   }
 
-  static fetchAll(callback) {
-    //path for read data
-    const homeDataPath = path.join(rootDir, "data", "home.json");
-    // read + error handeling
-    fs.readFile(homeDataPath, "utf8", (error, data) => {
-      console.log("file read ", error, data);
-      if (!error) {
-        callback(JSON.parse(data));
-      } else {
-        callback([]);
-      }
-    });
+  static findById(homeId) {
+    const db = getDB();
+    return db
+      .collection("homes")
+      .findOne({ _id: new ObjectId(homeId) })
+      .then((home) => (home ? ((home.id = home._id.toString()), home) : null));
   }
 
-  static findById(homeId, callback) {
-    Home.fetchAll((registerHome) => {
-      const home = registerHome.find((h) => h.id === homeId);
-      callback(home);
-    });
-  }
-  // delete method
-  static deletById(homeId, callback) {
-    this.fetchAll((homes) => {
-      homes = homes.filter((home) => home.id !== homeId);
-      const homeDataPath = path.join(rootDir, "data", "home.json"); // joint the path for write data
-
-      fs.writeFile(homeDataPath, JSON.stringify(homes), (error) => {
-        Favourite.deletById(homeId, callback);
-      });
-    });
+  static deleteById(homeId) {
+    const db = getDB();
+    return db.collection("homes").deleteOne({ _id: new ObjectId(homeId) });
   }
 
-  static updateById(updatedHome, callback) {
-    Home.fetchAll((registerHome) => {
-      const index = registerHome.findIndex((h) => h.id === updatedHome.id);
-      if (index !== -1) {
-        registerHome[index] = updatedHome;
-      }
-      const homeDataPath = path.join(rootDir, "data", "home.json");
-      fs.writeFile(homeDataPath, JSON.stringify(registerHome), (error) => {
-        console.log("file writing concluded ", error);
-        if (callback) callback(error);
-      });
-    });
+  static updateById(updatedHome) {
+    const db = getDB();
+    return db.collection("homes").updateOne(
+      { _id: new ObjectId(updatedHome.id) },
+      {
+        $set: {
+          homeName: updatedHome.homeName,
+          price: updatedHome.price,
+          location: updatedHome.location,
+          rating: updatedHome.rating,
+          photo: updatedHome.photo,
+          description: updatedHome.description,
+        },
+      },
+    );
   }
 };
