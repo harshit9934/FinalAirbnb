@@ -36,7 +36,7 @@ module.exports = class Home {
             photo: this.photo,
             description: this.description,
           },
-        },
+        }, // update
       );
     }
     // otherwise insert a new home
@@ -48,7 +48,7 @@ module.exports = class Home {
     return db
       .collection("homes")
       .find()
-      .toArray()
+      .toArray() // return a promise
       .then((homes) => {
         return homes.map((home) => {
           home.id = home._id.toString();

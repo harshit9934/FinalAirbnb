@@ -47,39 +47,53 @@ exports.getBookings = (req, res, next) => {
 };
 
 exports.getFavouriteList = (req, res, next) => {
-  Favourite.getFavourite((favouriteIds) => {
-    Home.fetchAll().then((registerHome) => {
-      const favouriteHomes = registerHome.filter((home) =>
-        favouriteIds.includes(home.id),
-      );
-      res.render("store/favourite-list", {
-        registerHome: favouriteHomes,
-        PageTitle: " My Favourites",
-        currentPage: "Favourites",
+  Favourite.fetchAll()
+    .then((favourites) => {
+      const favouriteIds = favourites.map((fav) => fav.homeId);
+      return Home.fetchAll().then((registerHome) => {
+        const favouriteHomes = registerHome.filter((home) =>
+          favouriteIds.includes(home.id.toString()),
+        );
+        res.render("store/favourite-list", {
+          registerHome: favouriteHomes,
+          PageTitle: " My Favourites",
+          currentPage: "Favourites",
+        });
       });
+    })
+    .catch((error) => {
+      console.log("Error while fetching favourites", error);
+      next(error);
     });
-  });
 };
 //  add fav
-exports.postAddToFavourite = (req, res, next) => {
-  console.log("came to add to favourites", req.body);
-  Favourite.addTofavourite(req.body.id, (error) => {
-    if (error) {
-      console.log("Error while marking favourites");
-    }
-    res.redirect("/favourites");
-  });
+exports.postAddFavourites = (req, res, next) => {
+  const homeId = req.body.id;
+  const fav = new Favourite(homeId);
+  fav
+    .save()
+    .then((result) => {
+      console.log("fav added", result);
+      res.redirect("/favourites");
+    })
+    .catch((error) => {
+      console.log("Error while adding favourite", error);
+      next(error);
+    });
 };
 
 // remove from favourite
-exports.postRemoveFromFavourite = (req, res, next) => {
+exports.postRemoveFavourites = (req, res, next) => {
   const homeId = req.params.homeId;
-  Favourite.deletById(homeId, (error) => {
-    if (error) {
-      console.log("Error while removing from favourite ", error);
-    }
-    res.redirect("/favourites");
-  });
+  Favourite.deleteById(homeId)
+    .then((result) => {
+      console.log("fav removed", result);
+      res.redirect("/favourites");
+    })
+    .catch((error) => {
+      console.log("Error while removing favourite", error);
+      next(error);
+    });
 };
 
 exports.getHomesDetails = (req, res, next) => {
