@@ -15,7 +15,6 @@ const storeRouter = require("./routes/storeRouter.js");
 // import controllers local module
 const homesController = require("./controllers/storeController.js");
 
-<<<<<<< HEAD
 const db = require("./utils/databaseUtil.js");
 
 db.execute("SELECT 1")
@@ -25,11 +24,6 @@ db.execute("SELECT 1")
   .catch((err) => {
     console.log("MySQL connection error:", err.message);
   });
-=======
-//const { mongoConnect } = require("./utils/databaseUtil.js"); // import  to mongoDB
-
-const { default: mongoose } = require("mongoose"); // import mongoose to connect to mongoDB
->>>>>>> 522ad1d645519ec09505b94a0c30cbc9fa210002
 
 // import pathUtils from utils folder
 const rootDir = require("./utils/pathUtils.js");
