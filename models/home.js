@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 
 // Home Schema
-// _id is automatically created by MongoDB
 const homeSchema = mongoose.Schema(
   {
     homeName: {
@@ -40,10 +39,10 @@ const homeSchema = mongoose.Schema(
 );
 
 // Cascade delete:
-// When a home is deleted, remove its related favourites
+// When a home is deleted, delete its related favourites
 homeSchema.pre("findOneAndDelete", async function (next) {
   try {
-    const homeId = this.getQuery()["_id"];
+    const homeId = this.getQuery()._id;
 
     const Favourite = require("./favourite");
 
