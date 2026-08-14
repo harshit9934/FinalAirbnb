@@ -1,40 +1,27 @@
-const { getDB } = require("../utils/databaseUtil.js");
+const mongoose = require("mongoose");
 
-module.exports = class Favourite {
-  constructor(homeId) {
-    this.homeId = homeId;
-  }
+// Favourite Schema - stores user's favorite homes
+const favouriteSchema = mongoose.Schema(
+  {
+    homeId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Home",
+      required: [true, "Home ID is required"],
+    },
 
-  // 3b: save() - prevent duplicate records using an upsert on homeId
-  save() {
-    const db = getDB();
-    return db.collection("favourites").updateOne(
-      { homeId: this.homeId },
-      {
-        $setOnInsert: { homeId: this.homeId },
-      },
-      { upsert: true },
-    );
-  }
+    // userId can be added later for multi-user support
+    // userId: {
+    //   type: mongoose.Schema.Types.ObjectId,
+    //   ref: "User",
+    //   required: true,
+    // },
+  },
+  {
+    timestamps: true,
+  },
+);
 
-  // 2a / 3a: fetchAll() - fetch all favourites via Mongo
-  static fetchAll() {
-    const db = getDB();
-    return db
-      .collection("favourites")
-      .find()
-      .toArray() // return a promise
-      .then((homes) => {
-        return homes.map((home) => {
-          home.id = home._id.toString();
-          return home;
-        });
-      });
-  }
+// Prevent the same home from being added to favourites multiple times
+favouriteSchema.index({ homeId: 1 }, { unique: true });
 
-  // 3c: deleteById() - remove a favourite by homeId
-  static deleteById(delHomeId) {
-    const db = getDB();
-    return db.collection("favourites").deleteOne({ homeId: delHomeId });
-  }
-};
+module.exports = mongoose.model("Favourite", favouriteSchema);
