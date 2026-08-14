@@ -23,12 +23,12 @@ storeRouter.get("/favourites", storeController.getFavouriteList); // add  fav ge
 //handeling   for /homes /:home-id.
 storeRouter.get("/homes/:homeId", storeController.getHomesDetails);
 //handle fav post req
-storeRouter.post("/favourites", storeController.postAddToFavourite);
+storeRouter.post("/favourites", storeController.postAddFavourites);
 
 // delete home from favourite
 storeRouter.post(
   "/favourites/delete/:homeId",
-  storeController.postRemoveFromFavourite,
+  storeController.postRemoveFavourites,
 );
 
 // export

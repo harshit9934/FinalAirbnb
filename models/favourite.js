@@ -1,43 +1,40 @@
-// core modules
-const path = require("path");
-const fs = require("fs");
-const rootDir = require("../utils/pathUtils.js");
-
-const favouriteDataPath = path.join(rootDir, "data", "favourite.json"); // joint the path for write data
-// write  + error handeling
+const { getDB } = require("../utils/databaseUtil.js");
 
 module.exports = class Favourite {
-  // 1  static  file
-  static addTofavourite(homeid, callback) {
-    Favourite.getFavourite((favourites) => {
-      // phele register home ko feth kr ke lao
-
-      if (favourites.includes(homeid)) {
-        console.log("Home is already marked Favourite");
-      } else {
-        favourites.push(homeid);
-        fs.writeFile(favouriteDataPath, JSON.stringify(favourites), callback);
-      }
-    });
+  constructor(homeId) {
+    this.homeId = homeId;
   }
 
-  // 2  method  only read file
-  static getFavourite(callback) {
-    // read + error handeling
-    fs.readFile(favouriteDataPath, "utf8", (error, data) => {
-      console.log("file read ", error, data);
-      if (!error) {
-        callback(JSON.parse(data));
-      } else {
-        callback([]);
-      }
-    });
+  // 3b: save() - prevent duplicate records using an upsert on homeId
+  save() {
+    const db = getDB();
+    return db.collection("favourites").updateOne(
+      { homeId: this.homeId },
+      {
+        $setOnInsert: { homeId: this.homeId },
+      },
+      { upsert: true },
+    );
   }
-  // delete method from fav
-  static deletById(delHomeId, callback) {
-    Favourite.getFavourite((homeIds) => {
-      homeIds = homeIds.filter((homeid) => homeid !== delHomeId);
-      fs.writeFile(favouriteDataPath, JSON.stringify(homeIds), callback);
-    });
+
+  // 2a / 3a: fetchAll() - fetch all favourites via Mongo
+  static fetchAll() {
+    const db = getDB();
+    return db
+      .collection("favourites")
+      .find()
+      .toArray() // return a promise
+      .then((homes) => {
+        return homes.map((home) => {
+          home.id = home._id.toString();
+          return home;
+        });
+      });
+  }
+
+  // 3c: deleteById() - remove a favourite by homeId
+  static deleteById(delHomeId) {
+    const db = getDB();
+    return db.collection("favourites").deleteOne({ homeId: delHomeId });
   }
 };
