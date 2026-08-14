@@ -15,8 +15,20 @@ const storeRouter = require("./routes/storeRouter.js");
 // import controllers local module
 const homesController = require("./controllers/storeController.js");
 
+const db = require("./utils/databaseUtil.js");
+
+db.execute("SELECT 1")
+  .then(() => {
+    console.log("Connected to MySQL database successfully");
+  })
+  .catch((err) => {
+    console.log("MySQL connection error:", err.message);
+  });
+
 // import pathUtils from utils folder
 const rootDir = require("./utils/pathUtils.js");
+
+const { error } = require("console");
 
 // making middleware  that locks  url and method lock
 

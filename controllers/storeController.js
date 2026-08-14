@@ -2,24 +2,34 @@ const Favourite = require("../models/favourite");
 const Home = require("../models/home");
 
 exports.getIndex = (req, res, next) => {
-  Home.fetchAll((registerHome) => {
-    res.render("store/index", {
-      registerHome,
-      PageTitle: "airbnb Home",
-      currentPage: "index",
+  Home.fetchAll()
+    .then(([registerHome]) => {
+      res.render("store/index", {
+        registerHome: registerHome,
+        PageTitle: "airbnb Home",
+        currentPage: "index",
+      });
+    })
+    .catch((error) => {
+      console.log("Error while fetching homes for index", error);
+      next(error);
     });
-  }); // call fetchall at home
 };
 
 //2  userRouter mai phele middleware ka function
 exports.getHomes = (req, res, next) => {
-  Home.fetchAll((registerHome) => {
-    res.render("store/home-list", {
-      registerHome,
-      PageTitle: " Homes List",
-      currentPage: "Home",
+  Home.fetchAll()
+    .then(([registerHome]) => {
+      res.render("store/home-list", {
+        registerHome,
+        PageTitle: " Homes List",
+        currentPage: "Home",
+      });
+    })
+    .catch((error) => {
+      console.log("Error while fetching homes", error);
+      next(error);
     });
-  }); // call fetchall at home
 };
 
 //3  error in app.js
@@ -38,7 +48,7 @@ exports.getBookings = (req, res, next) => {
 
 exports.getFavouriteList = (req, res, next) => {
   Favourite.getFavourite((favouriteIds) => {
-    Home.fetchAll((registerHome) => {
+    Home.fetchAll().then(([registerHome]) => {
       const favouriteHomes = registerHome.filter((home) =>
         favouriteIds.includes(home.id),
       );
@@ -75,7 +85,8 @@ exports.postRemoveFromFavourite = (req, res, next) => {
 exports.getHomesDetails = (req, res, next) => {
   const homeId = req.params.homeId;
   console.log(" At home detail page", homeId);
-  Home.findById(homeId, (home) => {
+  Home.findById(homeId).then(([homes]) => {
+    const home = homes[0];
     console.log("Found home:", home);
     if (!home) {
       console.log("Home not found for ID:", homeId);
