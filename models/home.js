@@ -1,89 +1,33 @@
-// import database utils
-const { getDB } = require("../utils/databaseUtil.js");
-const { ObjectId } = require("mongodb");
+const mongoose = require("mongoose"); // import mongoose
 
-module.exports = class Home {
-  constructor(
-    homeName,
-    price,
-    location,
-    rating,
-    photo,
-    description,
-    id = null,
-  ) {
-    this.homeName = homeName;
-    this.price = price;
-    this.location = location;
-    this.rating = rating;
-    this.photo = photo;
-    this.description = description;
-    this.id = id;
-  }
+//_id is automatically created by MongoDB, so we don't need to define it in the schema
+const homeSchema = mongoose.Schema(
+  {
+    homeName: { type: String, required: true },
+    price: { type: Number, required: true },
+    location: { type: String, required: true },
+    rating: { type: Number, required: true },
+    photo: { type: String, required: true },
+    description: { type: String, required: true },
+  },
+  { timestamps: true }, // Automatically adds createdAt and updatedAt
+);
 
-  save() {
-    const db = getDB();
-    if (this.id) {
-      // perform an update if an id is present
-      return db.collection("homes").updateOne(
-        { _id: new ObjectId(this.id) },
-        {
-          $set: {
-            homeName: this.homeName,
-            price: this.price,
-            location: this.location,
-            rating: this.rating,
-            photo: this.photo,
-            description: this.description,
-          },
-        }, // update
-      );
-    }
-    // otherwise insert a new home
-    return db.collection("homes").insertOne(this);
-  }
+// Pre-hook: Delete all related favorites when a home is deleted
+homeSchema.pre("findOneAndDelete", async function (next) {
+  try {
+    const homeId = this.getQuery()["_id"];
+    const Favourite = require("./favourite");
 
-  static fetchAll() {
-    const db = getDB();
-    return db
-      .collection("homes")
-      .find()
-      .toArray() // return a promise
-      .then((homes) => {
-        return homes.map((home) => {
-          home.id = home._id.toString();
-          return home;
-        });
-      });
-  }
-
-  static findById(homeId) {
-    const db = getDB();
-    return db
-      .collection("homes")
-      .findOne({ _id: new ObjectId(homeId) })
-      .then((home) => (home ? ((home.id = home._id.toString()), home) : null));
-  }
-
-  static deleteById(homeId) {
-    const db = getDB();
-    return db.collection("homes").deleteOne({ _id: new ObjectId(homeId) });
-  }
-
-  static updateById(updatedHome) {
-    const db = getDB();
-    return db.collection("homes").updateOne(
-      { _id: new ObjectId(updatedHome.id) },
-      {
-        $set: {
-          homeName: updatedHome.homeName,
-          price: updatedHome.price,
-          location: updatedHome.location,
-          rating: updatedHome.rating,
-          photo: updatedHome.photo,
-          description: updatedHome.description,
-        },
-      },
+    const deletedFavourites = await Favourite.deleteMany({ homeId: homeId });
+    console.log(
+      `✅ Cascade delete: Removed ${deletedFavourites.deletedCount} favourite(s) for home ${homeId}`,
     );
+    next();
+  } catch (error) {
+    console.error("❌ Error in cascade delete hook:", error.message);
+    next(error);
   }
-};
+});
+
+module.exports = mongoose.model("Home", homeSchema);
