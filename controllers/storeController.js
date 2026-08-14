@@ -1,6 +1,7 @@
 const Favourite = require("../models/favourite");
 const Home = require("../models/home");
 
+// 1. Home page
 exports.getIndex = (req, res, next) => {
   Home.fetchAll((registerHome) => {
     res.render("store/index", {
@@ -8,26 +9,29 @@ exports.getIndex = (req, res, next) => {
       PageTitle: "airbnb Home",
       currentPage: "index",
     });
+  });
 };
 
-//2  userRouter mai phele middleware ka function
+// 2. Home list
 exports.getHomes = (req, res, next) => {
   Home.fetchAll((registerHome) => {
     res.render("store/home-list", {
       registerHome,
-      PageTitle: " Homes List",
+      PageTitle: "Homes List",
       currentPage: "Home",
     });
-  }); // call fetchall at home
+  });
 };
 
-//3  error in app.js
-
+// 3. Error page
 exports.addError = (req, res, next) => {
-  res
-    .status(404)
-    .render("error", { PageTitle: "Page Not Found", currentPage: "404" });
+  res.status(404).render("error", {
+    PageTitle: "Page Not Found",
+    currentPage: "404",
+  });
 };
+
+// 4. Bookings
 exports.getBookings = (req, res, next) => {
   res.render("store/bookings", {
     PageTitle: "My Bookings",
@@ -35,26 +39,24 @@ exports.getBookings = (req, res, next) => {
   });
 };
 
-// Get all favorite homes
+// 5. Get favourite homes
 exports.getFavouriteList = (req, res, next) => {
   Favourite.getFavourite((favouriteIds) => {
     Home.fetchAll((registerHome) => {
       const favouriteHomes = registerHome.filter((home) =>
         favouriteIds.includes(home.id),
       );
+
       res.render("store/favourite-list", {
         registerHome: favouriteHomes,
         PageTitle: "My Favourites",
         currentPage: "Favourites",
       });
-    })
-    .catch((error) => {
-      console.error("❌ Error while fetching favourites:", error.message);
-      next(error);
     });
+  });
 };
-//  add fav
-// Add a home to favorites
+
+// 6. Add home to favourites
 exports.postAddFavourites = (req, res, next) => {
   const homeId = req.body.id;
 
@@ -64,7 +66,7 @@ exports.postAddFavourites = (req, res, next) => {
     return res.status(400).redirect("/homes");
   }
 
-  // Verify home exists before adding to favorites
+  // Check whether home exists
   Home.findById(homeId)
     .then((home) => {
       if (!home) {
@@ -72,17 +74,20 @@ exports.postAddFavourites = (req, res, next) => {
         return res.status(404).redirect("/homes");
       }
 
-      // Check if already favorited
+      // Check if already favourite
       return Favourite.findOne({ homeId: homeId }).then((existingFav) => {
         if (existingFav) {
-          console.log("⚠️  Home already in favorites:", homeId);
+          console.log("⚠️ Home already in favourites:", homeId);
           return res.redirect("/favourites");
         }
 
-        // Create and save new favorite
-        const newFav = new Favourite({ homeId: homeId });
+        // Create new favourite
+        const newFav = new Favourite({
+          homeId: homeId,
+        });
+
         return newFav.save().then((result) => {
-          console.log("✅ Favorite added successfully:", result._id);
+          console.log("✅ Favourite added successfully:", result._id);
           res.redirect("/favourites");
         });
       });
@@ -93,8 +98,7 @@ exports.postAddFavourites = (req, res, next) => {
     });
 };
 
-// remove from favourite
-// Remove a home from favorites
+// 7. Remove home from favourites
 exports.postRemoveFavourites = (req, res, next) => {
   const homeId = req.params.homeId;
 
@@ -107,10 +111,11 @@ exports.postRemoveFavourites = (req, res, next) => {
   Favourite.findOneAndDelete({ homeId: homeId })
     .then((result) => {
       if (result) {
-        console.log("✅ Favorite removed successfully", result._id);
+        console.log("✅ Favourite removed successfully:", result._id);
       } else {
-        console.warn("⚠️  Favorite not found for homeId:", homeId);
+        console.warn("⚠️ Favourite not found for homeId:", homeId);
       }
+
       res.redirect("/favourites");
     })
     .catch((error) => {
@@ -119,14 +124,23 @@ exports.postRemoveFavourites = (req, res, next) => {
     });
 };
 
+// 8. Home details
 exports.getHomesDetails = (req, res, next) => {
   const homeId = req.params.homeId;
-  console.log(" At home detail page", homeId);
+
+  console.log("At home detail page:", homeId);
+
   Home.findById(homeId, (home) => {
     console.log("Found home:", home);
+
     if (!home) {
       console.log("Home not found for ID:", homeId);
+      return res.status(404).render("error", {
+        PageTitle: "Home Not Found",
+        currentPage: "404",
+      });
     }
+
     res.render("store/home-details", {
       home,
       PageTitle: "Home Detail",
