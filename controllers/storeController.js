@@ -2,34 +2,23 @@ const Favourite = require("../models/favourite");
 const Home = require("../models/home");
 
 exports.getIndex = (req, res, next) => {
-  Home.fetchAll()
-    .then(([registerHome]) => {
-      res.render("store/index", {
-        registerHome: registerHome,
-        PageTitle: "airbnb Home",
-        currentPage: "index",
-      });
-    })
-    .catch((error) => {
-      console.log("Error while fetching homes for index", error);
-      next(error);
+  Home.fetchAll((registerHome) => {
+    res.render("store/index", {
+      registerHome,
+      PageTitle: "airbnb Home",
+      currentPage: "index",
     });
 };
 
 //2  userRouter mai phele middleware ka function
 exports.getHomes = (req, res, next) => {
-  Home.fetchAll()
-    .then(([registerHome]) => {
-      res.render("store/home-list", {
-        registerHome,
-        PageTitle: " Homes List",
-        currentPage: "Home",
-      });
-    })
-    .catch((error) => {
-      console.log("Error while fetching homes", error);
-      next(error);
+  Home.fetchAll((registerHome) => {
+    res.render("store/home-list", {
+      registerHome,
+      PageTitle: " Homes List",
+      currentPage: "Home",
     });
+  }); // call fetchall at home
 };
 
 //3  error in app.js
@@ -46,47 +35,94 @@ exports.getBookings = (req, res, next) => {
   });
 };
 
+// Get all favorite homes
 exports.getFavouriteList = (req, res, next) => {
   Favourite.getFavourite((favouriteIds) => {
-    Home.fetchAll().then(([registerHome]) => {
+    Home.fetchAll((registerHome) => {
       const favouriteHomes = registerHome.filter((home) =>
         favouriteIds.includes(home.id),
       );
       res.render("store/favourite-list", {
         registerHome: favouriteHomes,
-        PageTitle: " My Favourites",
+        PageTitle: "My Favourites",
         currentPage: "Favourites",
       });
+    })
+    .catch((error) => {
+      console.error("❌ Error while fetching favourites:", error.message);
+      next(error);
     });
-  });
 };
 //  add fav
-exports.postAddToFavourite = (req, res, next) => {
-  console.log("came to add to favourites", req.body);
-  Favourite.addTofavourite(req.body.id, (error) => {
-    if (error) {
-      console.log("Error while marking favourites");
-    }
-    res.redirect("/favourites");
-  });
+// Add a home to favorites
+exports.postAddFavourites = (req, res, next) => {
+  const homeId = req.body.id;
+
+  // Validate homeId
+  if (!homeId) {
+    console.error("❌ Home ID not provided");
+    return res.status(400).redirect("/homes");
+  }
+
+  // Verify home exists before adding to favorites
+  Home.findById(homeId)
+    .then((home) => {
+      if (!home) {
+        console.error("❌ Home not found for ID:", homeId);
+        return res.status(404).redirect("/homes");
+      }
+
+      // Check if already favorited
+      return Favourite.findOne({ homeId: homeId }).then((existingFav) => {
+        if (existingFav) {
+          console.log("⚠️  Home already in favorites:", homeId);
+          return res.redirect("/favourites");
+        }
+
+        // Create and save new favorite
+        const newFav = new Favourite({ homeId: homeId });
+        return newFav.save().then((result) => {
+          console.log("✅ Favorite added successfully:", result._id);
+          res.redirect("/favourites");
+        });
+      });
+    })
+    .catch((error) => {
+      console.error("❌ Error while adding favourite:", error.message);
+      next(error);
+    });
 };
 
 // remove from favourite
-exports.postRemoveFromFavourite = (req, res, next) => {
+// Remove a home from favorites
+exports.postRemoveFavourites = (req, res, next) => {
   const homeId = req.params.homeId;
-  Favourite.deletById(homeId, (error) => {
-    if (error) {
-      console.log("Error while removing from favourite ", error);
-    }
-    res.redirect("/favourites");
-  });
+
+  // Validate homeId
+  if (!homeId) {
+    console.error("❌ Home ID not provided for removal");
+    return res.status(400).redirect("/favourites");
+  }
+
+  Favourite.findOneAndDelete({ homeId: homeId })
+    .then((result) => {
+      if (result) {
+        console.log("✅ Favorite removed successfully", result._id);
+      } else {
+        console.warn("⚠️  Favorite not found for homeId:", homeId);
+      }
+      res.redirect("/favourites");
+    })
+    .catch((error) => {
+      console.error("❌ Error while removing favourite:", error.message);
+      next(error);
+    });
 };
 
 exports.getHomesDetails = (req, res, next) => {
   const homeId = req.params.homeId;
   console.log(" At home detail page", homeId);
-  Home.findById(homeId).then(([homes]) => {
-    const home = homes[0];
+  Home.findById(homeId, (home) => {
     console.log("Found home:", home);
     if (!home) {
       console.log("Home not found for ID:", homeId);

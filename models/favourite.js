@@ -1,43 +1,25 @@
-// core modules
-const path = require("path");
-const fs = require("fs");
-const rootDir = require("../utils/pathUtils.js");
+const mongoose = require("mongoose");
 
-const favouriteDataPath = path.join(rootDir, "data", "favourite.json"); // joint the path for write data
-// write  + error handeling
+// Favourite Schema - stores user's favorite homes
+const favouriteSchema = mongoose.Schema(
+  {
+    homeId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Home",
+      required: [true, "Home ID is required"],
+    },
+    // userId can be added later for multi-user support
+    // userId: {
+    //   type: mongoose.Schema.Types.ObjectId,
+    //   ref: "User",
+    //   required: true,
+    // },
+  },
+  { timestamps: true }, // Adds createdAt and updatedAt fields automatically
+);
 
-module.exports = class Favourite {
-  // 1  static  file
-  static addTofavourite(homeid, callback) {
-    Favourite.getFavourite((favourites) => {
-      // phele register home ko feth kr ke lao
+// Index to ensure each home is added to favorites only once per user
+// If userId is added, change this to: { userId: 1, homeId: 1 }
+favouriteSchema.index({ homeId: 1 }, { unique: true });
 
-      if (favourites.includes(homeid)) {
-        console.log("Home is already marked Favourite");
-      } else {
-        favourites.push(homeid);
-        fs.writeFile(favouriteDataPath, JSON.stringify(favourites), callback);
-      }
-    });
-  }
-
-  // 2  method  only read file
-  static getFavourite(callback) {
-    // read + error handeling
-    fs.readFile(favouriteDataPath, "utf8", (error, data) => {
-      console.log("file read ", error, data);
-      if (!error) {
-        callback(JSON.parse(data));
-      } else {
-        callback([]);
-      }
-    });
-  }
-  // delete method from fav
-  static deletById(delHomeId, callback) {
-    Favourite.getFavourite((homeIds) => {
-      homeIds = homeIds.filter((homeid) => homeid !== delHomeId);
-      fs.writeFile(favouriteDataPath, JSON.stringify(homeIds), callback);
-    });
-  }
-};
+module.exports = mongoose.model("Favourite", favouriteSchema);

@@ -1,78 +1,86 @@
-// import database utils
-const db = require("../utils/databaseUtil.js");
+// core modules
+const path = require("path");
+const fs = require("fs");
+const rootDir = require("../utils/pathUtils.js");
+const Favourite = require("./favourite.js");
 
 module.exports = class Home {
-  constructor(
-    homeName,
-    price,
-    location,
-    rating,
-    photo,
-    description,
-    id = null,
-  ) {
+  constructor(homeName, price, location, rating, photo) {
     this.homeName = homeName;
     this.price = price;
     this.location = location;
     this.rating = rating;
     this.photo = photo;
-    this.description = description;
-    this.id = id;
   }
 
   save() {
-    if (this.id) {
-      return db.execute(
-        "UPDATE homes SET homeName = ?, price = ?, location = ?, rating = ?, photo = ?, description = ? WHERE id = ?",
-        [
-          this.homeName,
-          this.price,
-          this.location,
-          this.rating,
-          this.photo,
-          this.description,
-          this.id,
-        ],
-      );
-    }
+    Home.fetchAll((registerHome) => {
+      // phele register home ko feth kr ke lao
 
-    return db.execute(
-      "INSERT INTO homes (homeName, price, location, rating, photo, description) VALUES (?, ?, ?, ?, ?, ?)",
-      [
-        this.homeName,
-        this.price,
-        this.location,
-        this.rating,
-        this.photo,
-        this.description,
-      ],
-    );
+      if (this.id) {
+        // edit home case
+        registerHome = registerHome.map((home) => {
+          if (home.id === this.id) {
+            return this;
+          }
+          return home;
+        });
+      } else {
+        //add home case
+        this.id = Math.random().toString();
+        registerHome.push(this);
+      }
+      const homeDataPath = path.join(rootDir, "data", "home.json"); // joint the path for write data
+      // write  + error handeling
+      fs.writeFile(homeDataPath, JSON.stringify(registerHome), (error) => {
+        console.log("file writing concluded ", error);
+      });
+    });
   }
 
-  static fetchAll() {
-    return db.execute("SELECT * FROM homes");
+  static fetchAll(callback) {
+    //path for read data
+    const homeDataPath = path.join(rootDir, "data", "home.json");
+    // read + error handeling
+    fs.readFile(homeDataPath, "utf8", (error, data) => {
+      console.log("file read ", error, data);
+      if (!error) {
+        callback(JSON.parse(data));
+      } else {
+        callback([]);
+      }
+    });
   }
 
-  static findById(homeId) {
-    return db.execute("SELECT * FROM homes WHERE id = ?", [homeId]);
+  static findById(homeId, callback) {
+    Home.fetchAll((registerHome) => {
+      const home = registerHome.find((h) => h.id === homeId);
+      callback(home);
+    });
+  }
+  // delete method
+  static deletById(homeId, callback) {
+    this.fetchAll((homes) => {
+      homes = homes.filter((home) => home.id !== homeId);
+      const homeDataPath = path.join(rootDir, "data", "home.json"); // joint the path for write data
+
+      fs.writeFile(homeDataPath, JSON.stringify(homes), (error) => {
+        Favourite.deletById(homeId, callback);
+      });
+    });
   }
 
-  static deletById(homeId) {
-    return db.execute("DELETE FROM homes WHERE id = ?", [homeId]);
-  }
-
-  static updateById(updatedHome) {
-    return db.execute(
-      "UPDATE homes SET homeName = ?, price = ?, location = ?, rating = ?, photo = ?, description = ? WHERE id = ?",
-      [
-        updatedHome.homeName,
-        updatedHome.price,
-        updatedHome.location,
-        updatedHome.rating,
-        updatedHome.photo,
-        updatedHome.description,
-        updatedHome.id,
-      ],
-    );
+  static updateById(updatedHome, callback) {
+    Home.fetchAll((registerHome) => {
+      const index = registerHome.findIndex((h) => h.id === updatedHome.id);
+      if (index !== -1) {
+        registerHome[index] = updatedHome;
+      }
+      const homeDataPath = path.join(rootDir, "data", "home.json");
+      fs.writeFile(homeDataPath, JSON.stringify(registerHome), (error) => {
+        console.log("file writing concluded ", error);
+        if (callback) callback(error);
+      });
+    });
   }
 };
