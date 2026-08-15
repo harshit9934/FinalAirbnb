@@ -4,7 +4,7 @@
     <%- include('../partials/header.ejs') %>
     
       <main class="container mx-auto p-8 mt-10">
-        <% if (registerHome.length === 0) { %>
+        <% if (registeredHomes.length === 0) { %>
           <h2 class="text-5xl text-gray-800 font-bold text-center mb-10">
             Welcome to airbnb
           </h2>
@@ -16,7 +16,7 @@
            Hey Host ! Here are your Homes:
           </h2>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <% registerHome.forEach(home =>{ %>
+            <% registeredHomes.forEach(home =>{ %>
             <div class="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
               <% if(home.photo) { %>
                 <img src="<%= home.photo %>" alt="<%= home.homeName %>" class="w-full h-48 object-cover">
@@ -41,8 +41,8 @@
                     <span class="text-yellow-500">★</span> <%= home.rating %>/5
                   </p>
                   <br>
-                  <a href="/host/edit-home/<%=home._id%>?editing=true" class="bg-green-300 p-2">Edit</a>
-                  <form action="/host/delete-home/<%= home._id%>" method="POST"><br>
+                  <a href="/host/edit-home/<%=home.id%>?editing=true" class="bg-green-300 p-2">Edit</a>
+                  <form action="/host/delete-home/<%= home.id%>" method="POST"><br>
                   <button type ="submit" class="bg-green-300 p-2">Delete</button>
                   </form>
                 </div>

@@ -7,7 +7,7 @@
         Here are your favourites:
       </h2>
       <div class="flex flex-wrap justify-center gap-6">
-        <% registerHome.forEach(home => { %>
+        <% favouriteHomes.forEach(home => { %>
           <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-300 w-full max-w-sm">
             <img src="<%= home.photo %>" alt="<%= home.houseName %>" class="w-full h-48 object-cover">
             <div class="p-4">
@@ -22,7 +22,7 @@
                   <span class="text-gray-700"><%= home.rating %></span>
                 </div>
               </div>
-              <form action="/favourites/delete/<%= home._id %>" method="POST">
+              <form action="/favourites/delete/<%= home.id %>" method="POST">
                 <button type="submit" class="bg-green-300 p-2"> Remove from favourite</button>
               </form>
               <button class="bg-green-300 p-2">Book</button>
