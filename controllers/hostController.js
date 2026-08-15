@@ -1,78 +1,84 @@
 const Home = require("../models/home");
+
 exports.getAddHome = (req, res, next) => {
   res.render("host/edit-addhome", {
-    PageTitle: "Add Home to Airbnb",
-    currentPage: "Add Home",
+    pageTitle: "Add Home to airbnb",
+    currentPage: "addHome",
     editing: false,
   });
 };
 
-// edit home
 exports.getEditHome = (req, res, next) => {
   const homeId = req.params.homeId;
   const editing = req.query.editing === "true";
 
-  Home.findById(homeId, (home) => {
+  Home.findById(homeId).then((home) => {
     if (!home) {
-      console.log("home not found for editing ");
+      console.log("Home not found for editing.");
       return res.redirect("/host/host-home-list");
     }
-    console.log(homeId, editing);
+
+    console.log(homeId, editing, home);
     res.render("host/edit-addhome", {
       home: home,
-      PageTitle: "Edit Home",
-      currentPage: "Edit Home",
+      pageTitle: "Edit your Home",
+      currentPage: "host-homes",
       editing: editing,
     });
   });
 };
 
-// post edit home
-exports.postEditHome = (req, res, next) => {
-  const { homeId, homeName, price, location, rating, photo } = req.body;
-  const home = new Home(homeName, price, location, rating, photo);
-  home.id = homeId;
-  home.save();
+exports.getHostHomes = (req, res, next) => {
+  Home.fetchAll().then((registeredHomes) => {
+    res.render("host/host-home-list", {
+      registeredHomes: registeredHomes,
+      pageTitle: "Host Homes List",
+      currentPage: "host-homes",
+    });
+  });
+};
+
+exports.postAddHome = (req, res, next) => {
+  const { homeName, price, location, rating, photo, description } = req.body;
+  const home = new Home(homeName, price, location, rating, photo, description);
+  home.save().then(() => {
+    console.log("Home Saved successfully");
+  });
 
   res.redirect("/host/host-home-list");
 };
 
-exports.getHostHomes = (req, res, next) => {
-  Home.fetchAll((registerHome) => {
-    res.render("host/host-home-list", {
-      registerHome,
-      PageTitle: " Host Homes List",
-      currentPage: "Host-Homes",
-    });
+exports.postEditHome = (req, res, next) => {
+  const { homeId, homeName, price, location, rating, photo, description } =
+    req.body;
+  const home = new Home(
+    homeName,
+    price,
+    location,
+    rating,
+    photo,
+    description,
+    homeId,
+  );
+  home.save().then((result) => {
+    console.log("Home updated ", result);
   });
+  res.redirect("/host/host-home-list");
 };
-//post  req for addhome
-exports.postAddHome = (req, res, next) => {
-  const { homeName, price, location, rating, photo } = req.body;
-  const home = new Home(homeName, price, location, rating, photo);
-  home.save();
 
-  res.render("host/home-added", {
-    PageTitle: "Home Added Successfully",
-    currentPage: "Home Added ",
-  });
-};
-//post  delete home
 exports.postDeleteHome = (req, res, next) => {
   const homeId = req.params.homeId;
-  console.log("came to delet", homeId);
-  Home.deletById(homeId, (error) => {
-    if (error) {
-      console.log("error while deleting", error);
-    }
-    res.redirect("/host/host-home-list");
-  });
+  console.log("Came to delete ", homeId);
+  Home.deleteById(homeId)
+    .then(() => {
+      res.redirect("/host/host-home-list");
+    })
+    .catch((error) => {
+      console.log("Error while deleting ", error);
+    });
 };
-
-//3  error in app.js
-
-exports.addError = (req, res, next) => {
+exports.pageNotFound = (req, res, next) => {
   res
     .status(404)
-    .render("error", { PageTitle: "Page Not Found", currentPage: "404" });
+    .render("404", { pageTitle: "Page Not Found", currentPage: "404" });
 };

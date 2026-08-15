@@ -16,7 +16,7 @@
             <img src="<%= home.photo %>" alt="<%= home.homeName %>" class="w-50 h-64 object-cover rounded-lg">
           <% } %>
           <div>
-            <%- include('../partials/favourite') %>
+            <%- include('../partials/favourite', { home: home }) %>
           </div>
         </div>
         
