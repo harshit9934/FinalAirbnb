@@ -1,65 +1,30 @@
-const mongoose = require("mongoose");
+const db = require("../utils/database");
 
-// Home Schema
-const homeSchema = mongoose.Schema(
-  {
-    homeName: {
-      type: String,
-      required: true,
-    },
-
-    price: {
-      type: Number,
-      required: true,
-    },
-
-    location: {
-      type: String,
-      required: true,
-    },
-
-    rating: {
-      type: Number,
-      required: true,
-    },
-
-    photo: {
-      type: String,
-      required: true,
-    },
-
-    description: {
-      type: String,
-      required: true,
-    },
-  },
-  {
-    timestamps: true,
-  },
-);
-
-// Cascade delete:
-// When a home is deleted, delete its related favourites
-homeSchema.pre("findOneAndDelete", async function (next) {
-  try {
-    const homeId = this.getQuery()._id;
-
-    const Favourite = require("./favourite");
-
-    const deletedFavourites = await Favourite.deleteMany({
-      homeId: homeId,
-    });
-
-    console.log(
-      `✅ Cascade delete: Removed ${deletedFavourites.deletedCount} favourite(s) for home ${homeId}`,
-    );
-
-    next();
-  } catch (error) {
-    console.error("❌ Error in cascade delete hook:", error.message);
-
-    next(error);
+module.exports = class Home {
+  constructor(homeName, price, location, rating, photo, description) {
+    this.homeName = homeName;
+    this.price = price;
+    this.location = location;
+    this.rating = rating;
+    this.photo = photo;
+    this.description = description;
   }
-});
 
-module.exports = mongoose.model("Home", homeSchema);
+  save() {
+    return db.execute(
+      "INSERT INTO homes (homeName, price, location, rating, photo, description) VALUES (?, ?, ?, ?, ?, ?)",
+      [
+        this.homeName,
+        this.price,
+        this.location,
+        this.rating,
+        this.photo,
+        this.description,
+      ],
+    );
+  }
+
+  static fetchAll() {
+    return db.execute("SELECT * FROM homes");
+  }
+};
