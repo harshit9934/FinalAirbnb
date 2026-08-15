@@ -31,11 +31,14 @@ exports.getBookings = (req, res, next) => {
 exports.getFavouriteList = (req, res, next) => {
   Favourite.getFavourites().then((favourites) => {
     favourites = favourites.map((fav) => fav.houseId);
+
     Home.fetchAll().then((registeredHomes) => {
       console.log(favourites, registeredHomes);
+
       const favouriteHomes = registeredHomes.filter((home) =>
         favourites.includes(home._id.toString()),
       );
+
       res.render("store/favourite-list", {
         favouriteHomes: favouriteHomes,
         pageTitle: "My Favourites",
@@ -48,6 +51,7 @@ exports.getFavouriteList = (req, res, next) => {
 exports.postAddToFavourite = (req, res, next) => {
   const homeId = req.body.id;
   const fav = new Favourite(homeId);
+
   fav
     .save()
     .then((result) => {
@@ -63,6 +67,7 @@ exports.postAddToFavourite = (req, res, next) => {
 
 exports.postRemoveFromFavourite = (req, res, next) => {
   const homeId = req.params.homeId;
+
   Favourite.deleteById(homeId)
     .then((result) => {
       console.log("Fav Removed: ", result);
@@ -77,6 +82,7 @@ exports.postRemoveFromFavourite = (req, res, next) => {
 
 exports.getHomeDetails = (req, res, next) => {
   const homeId = req.params.homeId;
+
   Home.findById(homeId).then((home) => {
     if (!home) {
       console.log("Home not found");

@@ -9,6 +9,7 @@ module.exports = class Home {
     this.rating = rating;
     this.photo = photo;
     this.description = description;
+
     if (id) {
       this.id = id;
     }
@@ -16,6 +17,7 @@ module.exports = class Home {
 
   save() {
     const db = getDB();
+
     if (this.id) {
       // update
       const updateFields = {
@@ -45,6 +47,7 @@ module.exports = class Home {
 
   static fetchAll() {
     const db = getDB();
+
     return db
       .collection("homes")
       .find()
@@ -54,6 +57,7 @@ module.exports = class Home {
           if (home._id) {
             home.id = home._id;
           }
+
           return home;
         });
       });
@@ -61,6 +65,7 @@ module.exports = class Home {
 
   static findById(homeId) {
     const db = getDB();
+
     return db
       .collection("homes")
       .find({ _id: new ObjectId(String(homeId)) })
@@ -69,12 +74,14 @@ module.exports = class Home {
         if (home && home._id) {
           home.id = home._id;
         }
+
         return home;
       });
   }
 
   static deleteById(homeId) {
     const db = getDB();
+
     return db
       .collection("homes")
       .deleteOne({ _id: new ObjectId(String(homeId)) });
@@ -83,6 +90,7 @@ module.exports = class Home {
   // Cleanup old fields from all documents
   static cleanupOldFields() {
     const db = getDB();
+
     return db
       .collection("homes")
       .updateMany(
@@ -98,6 +106,7 @@ module.exports = class Home {
         console.log(
           `Cleaned up ${result.modifiedCount} documents - removed houseName and photoUrl fields`,
         );
+
         return result;
       });
   }

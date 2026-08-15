@@ -40,7 +40,9 @@ exports.getHostHomes = (req, res, next) => {
 
 exports.postAddHome = (req, res, next) => {
   const { homeName, price, location, rating, photo, description } = req.body;
+
   const home = new Home(homeName, price, location, rating, photo, description);
+
   home.save().then(() => {
     console.log("Home Saved successfully");
   });
@@ -51,6 +53,7 @@ exports.postAddHome = (req, res, next) => {
 exports.postEditHome = (req, res, next) => {
   const { homeId, homeName, price, location, rating, photo, description } =
     req.body;
+
   const home = new Home(
     homeName,
     price,
@@ -60,23 +63,28 @@ exports.postEditHome = (req, res, next) => {
     description,
     homeId,
   );
+
   home.save().then((result) => {
     console.log("Home updated ", result);
   });
+
   res.redirect("/host/host-home-list");
 };
 
 exports.postDeleteHome = (req, res, next) => {
   const homeId = req.params.homeId;
   console.log("Came to delete ", homeId);
+
   Home.deleteById(homeId)
     .then(() => {
       res.redirect("/host/host-home-list");
     })
     .catch((error) => {
       console.log("Error while deleting ", error);
+      res.redirect("/host/host-home-list");
     });
 };
+
 exports.pageNotFound = (req, res, next) => {
   res
     .status(404)
