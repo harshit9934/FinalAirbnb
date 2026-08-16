@@ -1,82 +1,47 @@
-// External modules
-
-const express = require("express");
-const bodyParser = require("body-parser");
+// Core Module
 const path = require("path");
+const dns = require("dns");
+
+dns.setServers(["1.1.1.1", "8.8.8.8"]);
+
+// External Module
+const express = require("express");
+
+//Local Module
+const storeRouter = require("./routes/storeRouter");
+const hostRouter = require("./routes/hostRouter");
+const rootDir = require("./utils/pathUtils");
+const errorsController = require("./controllers/errors");
 const mongoose = require("mongoose");
 
 const app = express();
 
 app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "views"));
+app.set("views", "views");
 
-// Import routers
-const hostRouter = require("./routes/hostRouter.js");
-const storeRouter = require("./routes/storeRouter.js");
-
-// Import controllers
-const homesController = require("./controllers/storeController.js");
-
-// MySQL database
-const db = require("./utils/databaseUtil.js");
-
-db.execute("SELECT 1")
-  .then(() => {
-    console.log("Connected to MySQL database successfully");
-  })
-  .catch((err) => {
-    console.log("MySQL connection error:", err.message);
-  });
-
-// Import pathUtils
-const rootDir = require("./utils/pathUtils.js");
-
-// Middleware
-app.use((req, res, next) => {
-  console.log(req.url, req.method);
-  next();
-});
-
-// Body parser
-app.use(bodyParser.urlencoded({ extended: false }));
-
-// Host router
+app.use(express.urlencoded());
+app.use(storeRouter);
 app.use("/host", hostRouter);
 
-// Store router
-app.use(storeRouter);
-
-// Static files
 app.use(express.static(path.join(rootDir, "public")));
 
-// 404 error handler
-app.use(homesController.addError);
+app.use(errorsController.pageNotFound);
 
-const PORT = 3017;
+const PORT = 3000;
 
-// MongoDB connection
-const DB_Path = "mongodb://localhost:27017/airbnb";
+// Use the real Atlas SRV connection string here. This project currently keeps the
+// DNS override above so Node can resolve the MongoDB Atlas SRV record correctly.
+const DB_PATH =
+  "mongodb+srv://harshit:harshit123@apnacoding.5onc2nj.mongodb.net/airbnb?appName=ApnaCoding";
 
-// Connect to MongoDB
 mongoose
-  .connect(DB_Path, {
-    serverSelectionTimeoutMS: 10000,
-    socketTimeoutMS: 45000,
-  })
+  .connect(DB_PATH)
   .then(() => {
-    console.log("✅ Connected to MongoDB with Mongoose");
-
+    console.log("Connected to MongoDB:", DB_PATH);
     app.listen(PORT, () => {
-      console.log(`✅ Server is running on http://localhost:${PORT}`);
+      console.log(`Server running on address http://localhost:${PORT}`);
     });
   })
   .catch((err) => {
-    console.error("❌ MongoDB Connection Error:");
-    console.error("Error Code:", err.code);
-    console.error("Error Message:", err.message);
-
-    console.error("\n⚠️ POSSIBLE SOLUTIONS:");
-    console.error("1. Check whether MongoDB is running.");
-    console.error("2. Check MongoDB connection URL.");
-    console.error("3. Make sure MongoDB is installed.");
+    console.log("Error while connecting to Mongo: ", err);
   });

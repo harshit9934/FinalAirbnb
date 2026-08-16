@@ -58,8 +58,12 @@ exports.getFavouriteList = (req, res, next) => {
       console.log(`✅ Found ${favourites.length} favourite(s)`);
 
       const favouriteHomes = favourites
-        .map((fav) => fav.homeId)
-        .filter((home) => home !== null);
+        .map((fav) => (fav && fav.homeId ? fav.homeId : null))
+        .filter((home) => home && home._id);
+
+      console.log(
+        `✅ Rendering ${favouriteHomes.length} valid favourite home(s)`,
+      );
 
       res.render("store/favourite-list", {
         registerHome: favouriteHomes,

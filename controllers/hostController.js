@@ -1,4 +1,5 @@
 const Home = require("../models/home");
+
 exports.getAddHome = (req, res, next) => {
   res.render("host/edit-addhome", {
     PageTitle: "Add Home to Airbnb",
@@ -7,72 +8,112 @@ exports.getAddHome = (req, res, next) => {
   });
 };
 
-// edit home
 exports.getEditHome = (req, res, next) => {
   const homeId = req.params.homeId;
   const editing = req.query.editing === "true";
 
-  Home.findById(homeId, (home) => {
-    if (!home) {
-      console.log("home not found for editing ");
-      return res.redirect("/host/host-home-list");
-    }
-    console.log(homeId, editing);
-    res.render("host/edit-addhome", {
-      home: home,
-      PageTitle: "Edit Home",
-      currentPage: "Edit Home",
-      editing: editing,
+  Home.findById(homeId)
+    .then((home) => {
+      if (!home) {
+        console.log("Home not found for editing");
+        return res.redirect("/host/host-home-list");
+      }
+
+      res.render("host/edit-addhome", {
+        home,
+        PageTitle: "Edit Home",
+        currentPage: "Edit Home",
+        editing,
+      });
+    })
+    .catch((error) => {
+      console.error("Error while fetching home for edit:", error);
+      next(error);
     });
-  });
 };
 
-// post edit home
 exports.postEditHome = (req, res, next) => {
-  const { homeId, homeName, price, location, rating, photo } = req.body;
-  const home = new Home(homeName, price, location, rating, photo);
-  home.id = homeId;
-  home.save();
+  const { homeId, homeName, price, location, rating, photo, description } =
+    req.body;
 
-  res.redirect("/host/host-home-list");
+  Home.findByIdAndUpdate(
+    homeId,
+    {
+      homeName,
+      price,
+      location,
+      rating,
+      photo,
+      description,
+    },
+    { returnDocument: "after" },
+  )
+    .then(() => {
+      res.redirect("/host/host-home-list");
+    })
+    .catch((error) => {
+      console.error("Error while updating home:", error);
+      next(error);
+    });
 };
 
 exports.getHostHomes = (req, res, next) => {
-  Home.fetchAll((registerHome) => {
-    res.render("host/host-home-list", {
-      registerHome,
-      PageTitle: " Host Homes List",
-      currentPage: "Host-Homes",
+  Home.find()
+    .then((registerHome) => {
+      res.render("host/host-home-list", {
+        registerHome,
+        PageTitle: "Host Homes List",
+        currentPage: "Host-Homes",
+      });
+    })
+    .catch((error) => {
+      console.error("Error while fetching host homes:", error);
+      next(error);
     });
-  });
 };
-//post  req for addhome
-exports.postAddHome = (req, res, next) => {
-  const { homeName, price, location, rating, photo } = req.body;
-  const home = new Home(homeName, price, location, rating, photo);
-  home.save();
 
-  res.render("host/home-added", {
-    PageTitle: "Home Added Successfully",
-    currentPage: "Home Added ",
+exports.postAddHome = (req, res, next) => {
+  const { homeName, price, location, rating, photo, description } = req.body;
+
+  const home = new Home({
+    homeName,
+    price,
+    location,
+    rating,
+    photo,
+    description,
   });
+
+  home
+    .save()
+    .then(() => {
+      res.render("host/home-added", {
+        PageTitle: "Home Added Successfully",
+        currentPage: "Home Added",
+      });
+    })
+    .catch((error) => {
+      console.error("Error while saving home:", error);
+      next(error);
+    });
 };
-//post  delete home
+
 exports.postDeleteHome = (req, res, next) => {
   const homeId = req.params.homeId;
-  console.log("came to delet", homeId);
-  Home.deletById(homeId, (error) => {
-    if (error) {
-      console.log("error while deleting", error);
-    }
-    res.redirect("/host/host-home-list");
-  });
+
+  Home.findByIdAndDelete(homeId)
+    .then(() => {
+      res.redirect("/host/host-home-list");
+    })
+    .catch((error) => {
+      console.error("Error while deleting home:", error);
+      next(error);
+    });
 };
 
-//3  error in app.js
-
 exports.addError = (req, res, next) => {
-  res
-    .status(404)
-    .render("error", { PageTitle: "Page Not Found", currentPage: "404" });
+  res.status(404).render("error", {
+    PageTitle: "Page Not Found",
+    currentPage: "404",
+  });
 };

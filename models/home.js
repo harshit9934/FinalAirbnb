@@ -1,36 +1,36 @@
 const mongoose = require("mongoose");
 
-// Home Schema
-const homeSchema = mongoose.Schema(
+const homeSchema = new mongoose.Schema(
   {
     homeName: {
       type: String,
       required: true,
+      trim: true,
     },
-
     price: {
       type: Number,
       required: true,
+      min: 0,
     },
-
     location: {
       type: String,
       required: true,
+      trim: true,
     },
-
     rating: {
       type: Number,
       required: true,
+      min: 1,
+      max: 5,
     },
-
     photo: {
       type: String,
-      required: true,
+      default: "",
     },
-
     description: {
       type: String,
       required: true,
+      trim: true,
     },
   },
   {
@@ -38,27 +38,24 @@ const homeSchema = mongoose.Schema(
   },
 );
 
-// Cascade delete:
-// When a home is deleted, delete its related favourites
-homeSchema.pre("findOneAndDelete", async function (next) {
+homeSchema.pre(["findOneAndDelete", "deleteOne"], async function () {
   try {
-    const homeId = this.getQuery()._id;
+    const filter = this.getFilter ? this.getFilter() : this.getQuery();
+    const homeId = filter && filter._id ? filter._id : null;
 
-    const Favourite = require("./favourite");
+    if (!homeId) {
+      return;
+    }
 
-    const deletedFavourites = await Favourite.deleteMany({
-      homeId: homeId,
-    });
+    const Favourite = mongoose.model("Favourite");
+    const deletedFavourites = await Favourite.deleteMany({ homeId });
 
     console.log(
       `✅ Cascade delete: Removed ${deletedFavourites.deletedCount} favourite(s) for home ${homeId}`,
     );
-
-    next();
   } catch (error) {
     console.error("❌ Error in cascade delete hook:", error.message);
-
-    next(error);
+    throw error;
   }
 });
 

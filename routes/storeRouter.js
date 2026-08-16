@@ -1,14 +1,8 @@
-// core module import
-const path = require("path");
-
 // external module import
 const express = require("express");
 
 // naya router banane ke liye
 const storeRouter = express.Router();
-
-// import pathUtils from utils folder
-const rootDir = require("../utils/pathUtils.js");
 
 // import controller local module
 const storeController = require("../controllers/storeController.js");
