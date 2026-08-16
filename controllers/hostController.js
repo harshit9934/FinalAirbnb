@@ -63,7 +63,7 @@ exports.getHostHomes = (req, res, next) => {
       res.render("host/host-home-list", {
         registerHome,
         PageTitle: "Host Homes List",
-        currentPage: "Host-Homes",
+        currentPage: "host-homes",
       });
     })
     .catch((error) => {
