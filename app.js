@@ -1,5 +1,8 @@
 // Core Module
 const path = require("path");
+const dns = require("dns");
+
+dns.setServers(["1.1.1.1", "8.8.8.8"]);
 
 // External Module
 const express = require("express");
@@ -15,6 +18,8 @@ const storeRouter = require("./routes/storeRouter");
 const hostRouter = require("./routes/hostRouter");
 const authRouter = require("./routes/authRouter");
 const rootDir = require("./utils/pathUtils");
+const errorsController = require("./controllers/errors");
+const mongoose = require("mongoose");
 
 const app = express();
 
@@ -68,22 +73,18 @@ app.use("/host", hostRouter);
 
 app.use(express.static(path.join(rootDir, "public")));
 
-app.use((req, res) => {
-  res.status(404).render("error", {
-    PageTitle: "Page Not Found",
-    currentPage: "404",
-  });
-});
+app.use(errorsController.pageNotFound);
 
-app.use((error, req, res, next) => {
-  console.error(error);
-  res.status(500).render("error", {
-    PageTitle: "Server Error",
-    currentPage: "500",
-  });
-});
+const PORT = 3018;
 
-const PORT = 3000;
-app.listen(PORT, () => {
-  console.log(`Server running on address http://localhost:${PORT}`);
-});
+mongoose
+  .connect(DB_PATH)
+  .then(() => {
+    console.log("Connected to MongoDB:", DB_PATH);
+    app.listen(PORT, () => {
+      console.log(`Server running on address http://localhost:${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.log("Error while connecting to Mongo: ", err);
+  });

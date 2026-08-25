@@ -1,77 +1,62 @@
-// Core Modules
+const mongoose = require("mongoose");
 
-const db = require("../utils/databaseUtil");
+const homeSchema = new mongoose.Schema(
+  {
+    homeName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    price: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+    location: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    rating: {
+      type: Number,
+      required: true,
+      min: 1,
+      max: 5,
+    },
+    photo: {
+      type: String,
+      default: "",
+    },
+    description: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+  },
+  {
+    timestamps: true,
+  },
+);
 
-module.exports = class Home {
-  constructor(homeName, price, location, rating, photo, description, id) {
-    this.homeName = homeName;
+homeSchema.pre(["findOneAndDelete", "deleteOne"], async function () {
+  try {
+    const filter = this.getFilter ? this.getFilter() : this.getQuery();
+    const homeId = filter && filter._id ? filter._id : null;
 
-    this.price = price;
-
-    this.location = location;
-
-    this.rating = rating;
-
-    this.photo = photo;
-
-    this.description = description;
-
-    this.id = id;
-  }
-
-  save() {
-    if (this.id) {
-      // update
-      return db.execute(
-        "UPDATE homes SET homeName=?, price=?, location=?, rating=?, photo=?, description=? WHERE id=?",
-
-        [
-          this.homeName,
-
-          this.price,
-
-          this.location,
-
-          this.rating,
-
-          this.photo,
-
-          this.description,
-
-          this.id,
-        ],
-      );
-    } else {
-      // insert
-      return db.execute(
-        "INSERT INTO homes (homeName, price, location, rating, photo, description) VALUES (?, ?, ?, ?, ?, ?)",
-
-        [
-          this.homeName,
-
-          this.price,
-
-          this.location,
-
-          this.rating,
-
-          this.photo,
-
-          this.description,
-        ],
-      );
+    if (!homeId) {
+      return;
     }
-  }
 
-  static fetchAll() {
-    return db.execute("SELECT * FROM homes");
-  }
+    const Favourite = mongoose.model("Favourite");
+    const deletedFavourites = await Favourite.deleteMany({ homeId });
 
-  static findById(homeId) {
-    return db.execute("SELECT * FROM homes WHERE id=?", [homeId]);
+    console.log(
+      `✅ Cascade delete: Removed ${deletedFavourites.deletedCount} favourite(s) for home ${homeId}`,
+    );
+  } catch (error) {
+    console.error("❌ Error in cascade delete hook:", error.message);
+    throw error;
   }
+});
 
-  static deleteById(homeId) {
-    return db.execute("DELETE FROM homes WHERE id=?", [homeId]);
-  }
-};
+module.exports = mongoose.model("Home", homeSchema);

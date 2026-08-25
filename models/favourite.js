@@ -1,22 +1,27 @@
-const db = require("../utils/databaseUtil");
+const mongoose = require("mongoose");
 
-/** Database access for the `favourites` table.
- *
- * The table needs a unique `homeId` column, so a home can only be favourited
- * once. See TODO.md for the SQL needed to create the tables.
- */
-module.exports = class Favourite {
-  static fetchAll() {
-    return db.execute("SELECT homeId FROM favourites");
-  }
+// Favourite Schema - stores user's favorite homes
+const favouriteSchema = mongoose.Schema(
+  {
+    homeId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Home",
+      required: [true, "Home ID is required"],
+    },
 
-  static add(homeId) {
-    return db.execute("INSERT IGNORE INTO favourites (homeId) VALUES (?)", [
-      homeId,
-    ]);
-  }
+    // userId can be added later for multi-user support
+    // userId: {
+    //   type: mongoose.Schema.Types.ObjectId,
+    //   ref: "User",
+    //   required: true,
+    // },
+  },
+  {
+    timestamps: true,
+  },
+);
 
-  static deleteByHomeId(homeId) {
-    return db.execute("DELETE FROM favourites WHERE homeId = ?", [homeId]);
-  }
-};
+// Prevent the same home from being added to favourites multiple times
+favouriteSchema.index({ homeId: 1 }, { unique: true });
+
+module.exports = mongoose.model("Favourite", favouriteSchema);
