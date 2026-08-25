@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <%- include('../partials/head.ejs') %>
+  </head>
+  <body>
+    <%- include('../partials/header.ejs') %>
+    <main
+      class="container mx-auto bg-white shadow-lg rounded-lg p-8 mt-10 max-w-xl"
+    >
+      <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">
+        <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">
+          Login with your credentials
+        </h1>
+      </h1>
+      <form action="/auth/login" method="POST" class="space-y-4">
+        <input
+          type="text"
+          name="username"
+          placeholder="Email / Username"
+          class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-500"
+          required
+        />
+        <input
+          type="password"
+          name="password"
+          placeholder=" Enter Your Password"
+          class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-500"
+          required
+        />
+
+        <button
+          type="submit"
+          value="sign In"
+          class="w-full bg-red-500 text-white py-2 px-4 rounded hover:bg-red-400 transition duration-300"
+        >
+          Sign In
+        </button>
+      </form>
+    </main>
+  </body>
+</html>
