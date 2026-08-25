@@ -83,23 +83,7 @@ app.use((error, req, res, next) => {
   });
 });
 
-<<<<<<< HEAD
 const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`Server running on address http://localhost:${PORT}`);
 });
-=======
-const PORT = 3018;
-
-mongoose
-  .connect(DB_PATH)
-  .then(() => {
-    console.log("Connected to MongoDB:", DB_PATH);
-    app.listen(PORT, () => {
-      console.log(`Server running on address http://localhost:${PORT}`);
-    });
-  })
-  .catch((err) => {
-    console.log("Error while connecting to Mongo: ", err);
-  });
->>>>>>> 4efd59f ( ch18 cookis and session)
