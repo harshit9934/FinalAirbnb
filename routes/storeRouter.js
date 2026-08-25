@@ -1,14 +1,8 @@
-// core module import
-const path = require("path");
-
 // external module import
 const express = require("express");
 
 // naya router banane ke liye
 const storeRouter = express.Router();
-
-// import pathUtils from utils folder
-const rootDir = require("../utils/pathUtils.js");
 
 // import controller local module
 const storeController = require("../controllers/storeController.js");
@@ -22,15 +16,15 @@ storeRouter.get("/bookings", storeController.getBookings);
 storeRouter.get("/favourites", storeController.getFavouriteList);
 
 // handle /homes/:homeId
-storeRouter.get("/homes/:homeId", storeController.getHomesDetails);
+storeRouter.get("/homes/:homeId", storeController.getHomeDetails);
 
 // handle favourite POST request
-storeRouter.post("/favourites", storeController.postAddFavourites);
+storeRouter.post("/favourites", storeController.postAddToFavourite);
 
 // delete home from favourite
 storeRouter.post(
   "/favourites/delete/:homeId",
-  storeController.postRemoveFavourites,
+  storeController.postRemoveFromFavourite,
 );
 
 // export

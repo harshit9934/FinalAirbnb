@@ -4,7 +4,7 @@
     <%- include ('../partials/header') %>
     
       <main class="container mx-auto p-8 mt-10">
-        <% if (registerHome.length === 0) { %>
+        <% if (registeredHomes.length === 0) { %>
           <h2 class="text-5xl text-gray-800 font-bold text-center mb-10">
             Welcome to airbnb
           </h2>
@@ -16,7 +16,7 @@
             Here are our registered homes
           </h2>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <% registerHome.forEach(home =>{ %>
+            <% registeredHomes.forEach(home =>{ %>
             <div class="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
               <% if(home.photo) { %>
                 <img src="<%= home.photo %>" alt="<%= home.homeName %>" class="w-full h-48 object-cover">
@@ -40,7 +40,7 @@
                     <span class="font-semibold mr-2">Rating:</span>
                     <span class="text-yellow-500">★</span> <%= home.rating %>/5
                   </p><br/>
-                 <a  class="bg-green-300 p-2" href="/homes/<%= home._id%>">Details</a><br/><br>
+                 <a  class="bg-green-300 p-2" href="/homes/<%= home.id %>">Details</a><br/><br>
                   <%- include('../partials/favourite' , ({ home: home })) %>
                 </div>
               </div>

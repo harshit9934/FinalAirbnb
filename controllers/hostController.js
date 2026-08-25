@@ -12,7 +12,8 @@ exports.getEditHome = (req, res, next) => {
   const homeId = req.params.homeId;
   const editing = req.query.editing === "true";
 
-  Home.findById(homeId, (home) => {
+  Home.findById(homeId).then(([homes]) => {
+    const home = homes[0];
     if (!home) {
       console.log("home not found for editing ");
       return res.redirect("/host/host-home-list");
@@ -29,18 +30,25 @@ exports.getEditHome = (req, res, next) => {
 
 // post edit home
 exports.postEditHome = (req, res, next) => {
-  const { homeId, homeName, price, location, rating, photo } = req.body;
-  const home = new Home(homeName, price, location, rating, photo);
+  const { homeId, homeName, price, location, rating, photo, description } =
+    req.body;
+  const home = new Home(homeName, price, location, rating, photo, description);
   home.id = homeId;
-  home.save();
-
-  res.redirect("/host/host-home-list");
+  home
+    .save()
+    .then(() => {
+      res.redirect("/host/host-home-list");
+    })
+    .catch((error) => {
+      console.log("Error while editing home", error);
+      res.redirect("/host/host-home-list");
+    });
 };
 
 exports.getHostHomes = (req, res, next) => {
-  Home.fetchAll((registerHome) => {
+  Home.fetchAll().then(([registeredHomes]) => {
     res.render("host/host-home-list", {
-      registerHome,
+      registeredHomes,
       PageTitle: " Host Homes List",
       currentPage: "Host-Homes",
     });
@@ -48,25 +56,35 @@ exports.getHostHomes = (req, res, next) => {
 };
 //post  req for addhome
 exports.postAddHome = (req, res, next) => {
-  const { homeName, price, location, rating, photo } = req.body;
-  const home = new Home(homeName, price, location, rating, photo);
-  home.save();
+  const { homeName, price, location, rating, photo, description } = req.body;
 
-  res.render("host/home-added", {
-    PageTitle: "Home Added Successfully",
-    currentPage: "Home Added ",
-  });
+  const home = new Home(homeName, price, location, rating, photo, description);
+
+  home
+    .save()
+    .then(() => {
+      res.render("host/home-added", {
+        PageTitle: "Home Added Successfully",
+        currentPage: "Home Added",
+      });
+    })
+    .catch((error) => {
+      console.log("Error while adding home", error);
+      res.redirect("/host/add-home");
+    });
 };
 //post  delete home
 exports.postDeleteHome = (req, res, next) => {
   const homeId = req.params.homeId;
   console.log("came to delet", homeId);
-  Home.deletById(homeId, (error) => {
-    if (error) {
+  Home.deleteById(homeId)
+    .then(() => {
+      res.redirect("/host/host-home-list");
+    })
+    .catch((error) => {
       console.log("error while deleting", error);
-    }
-    res.redirect("/host/host-home-list");
-  });
+      res.redirect("/host/host-home-list");
+    });
 };
 
 //3  error in app.js

@@ -1,4 +1,27 @@
-# Task: Fix `getDb is not a function` error and complete MongoDB integration
+# MySQL setup
+
+Run this once in MySQL after creating/selecting the `airbnb` database:
+
+```sql
+CREATE TABLE homes (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  homeName VARCHAR(255) NOT NULL,
+  price DECIMAL(10, 2) NOT NULL,
+  location VARCHAR(255) NOT NULL,
+  rating DECIMAL(2, 1) NOT NULL,
+  photo VARCHAR(2048),
+  description TEXT NOT NULL
+);
+
+CREATE TABLE favourites (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  homeId INT UNSIGNED NOT NULL UNIQUE,
+  CONSTRAINT favourites_home_fk
+    FOREIGN KEY (homeId) REFERENCES homes(id) ON DELETE CASCADE
+);
+```
+
+# Previous MongoDB notes
 
 ## Steps
 
