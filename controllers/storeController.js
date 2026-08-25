@@ -2,22 +2,33 @@ const Favourite = require("../models/favourite");
 const Home = require("../models/home");
 
 exports.getIndex = (req, res, next) => {
-  Home.fetchAll().then(([rows]) => {
-    res.render("store/index", {
-      registeredHomes: rows,
-      PageTitle: "Airbnb Home",
-      currentPage: "index",
+  Home.find()
+    .then((registeredHomes) => {
+      res.render("store/index", {
+        registerHome: registeredHomes,
+        PageTitle: "airbnb Home",
+        currentPage: "index",
+      });
+    })
+    .catch((error) => {
+      console.error("Error fetching homes:", error);
+      next(error);
     });
-  });
 };
+
 exports.getHomes = (req, res, next) => {
-  Home.fetchAll().then(([registeredHomes]) => {
-    res.render("store/home-list", {
-      registeredHomes: registeredHomes,
-      PageTitle: "Homes List",
-      currentPage: "Home",
+  Home.find()
+    .then((registeredHomes) => {
+      res.render("store/home-list", {
+        registerHome: registeredHomes,
+        PageTitle: "Homes List",
+        currentPage: "Home",
+      });
+    })
+    .catch((error) => {
+      console.error("Error fetching homes:", error);
+      next(error);
     });
-  });
 };
 
 exports.getBookings = (req, res, next) => {
@@ -28,52 +39,80 @@ exports.getBookings = (req, res, next) => {
 };
 
 exports.getFavouriteList = (req, res, next) => {
-  Favourite.getFavourites((favourites) => {
-    Home.fetchAll().then(([registeredHomes]) => {
-      const favouriteHomes = registeredHomes.filter((home) =>
-        favourites.includes(String(home.id)),
+  Favourite.find()
+    .populate("homeId")
+    .then((favourites) => {
+      // Extract the populated home objects and filter out null/undefined
+      const favouriteHomes = favourites
+        .map((fav) => fav.homeId)
+        .filter((home) => home); // Filters out null, undefined, and other falsy values
+
+      console.log(
+        `✅ Rendering ${favouriteHomes.length} valid favourite home(s)`,
       );
+
       res.render("store/favourite-list", {
-        favouriteHomes: favouriteHomes,
+        registerHome: favouriteHomes,
         PageTitle: "My Favourites",
-        currentPage: "favourites",
+        currentPage: "Favourite",
       });
+    })
+    .catch((error) => {
+      console.error("Error fetching favourites:", error);
+      next(error);
     });
-  });
 };
 
 exports.postAddToFavourite = (req, res, next) => {
-  Favourite.addToFavourite(req.body.id, (error) => {
-    if (error) {
-      console.log("Error while marking favourite: ", error);
-    }
-    res.redirect("/favourites");
-  });
+  const homeId = req.body.id;
+
+  const favourite = new Favourite({ homeId });
+
+  favourite
+    .save()
+    .then((result) => {
+      console.log("✅ Favourite added:", result);
+    })
+    .catch((err) => {
+      console.error("❌ Error while marking favourite:", err);
+    })
+    .finally(() => {
+      res.redirect("/favourites");
+    });
 };
 
 exports.postRemoveFromFavourite = (req, res, next) => {
   const homeId = req.params.homeId;
-  Favourite.deleteById(homeId, (error) => {
-    if (error) {
-      console.log("Error while removing from Favourite", error);
-    }
-    res.redirect("/favourites");
-  });
+
+  Favourite.findOneAndDelete({ homeId })
+    .then((result) => {
+      console.log("✅ Favourite Removed:", result);
+    })
+    .catch((err) => {
+      console.error("❌ Error while removing favourite:", err);
+    })
+    .finally(() => {
+      res.redirect("/favourites");
+    });
 };
 
 exports.getHomeDetails = (req, res, next) => {
   const homeId = req.params.homeId;
-  Home.findById(homeId).then(([homes]) => {
-    const home = homes[0];
-    if (!home) {
-      console.log("Home not found");
-      res.redirect("/homes");
-    } else {
+
+  Home.findById(homeId)
+    .then((home) => {
+      if (!home) {
+        console.log("Home not found");
+        return res.redirect("/homes");
+      }
       res.render("store/home-details", {
         home: home,
         PageTitle: "Home Detail",
         currentPage: "Home",
       });
-    }
-  });
+    })
+    .catch((error) => {
+      console.error("Error fetching home details:", error);
+      next(error);
+    });
 };

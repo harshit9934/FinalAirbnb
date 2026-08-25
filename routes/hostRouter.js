@@ -1,12 +1,7 @@
-// core modules
-const path = require("path");
-
 // external modules
 const express = require("express");
 
 const hostRouter = express.Router();
-// import pathUtils from utils folder
-const rootDir = require("../utils/pathUtils.js");
 const hostController = require("../controllers/hostController");
 
 //import controllers local module

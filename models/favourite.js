@@ -1,36 +1,27 @@
-// Core Modules
-const fs = require("fs");
-const path = require("path");
-const rootDir = require("../utils/pathUtils.js");
+const mongoose = require("mongoose");
 
-const favouriteDataPath = path.join(rootDir, "data", "favourite.json");
+// Favourite Schema - stores user's favorite homes
+const favouriteSchema = mongoose.Schema(
+  {
+    homeId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Home",
+      required: [true, "Home ID is required"],
+    },
 
-module.exports = class Favourite {
-  static addToFavourite(homeId, callback) {
-    Favourite.getFavourites((favourites) => {
-      // Convert to string for consistent comparison
-      const homeIdStr = String(homeId);
-      if (favourites.includes(homeIdStr)) {
-        callback("Home is already marked favourite");
-      } else {
-        favourites.push(homeIdStr);
-        fs.writeFile(favouriteDataPath, JSON.stringify(favourites), callback);
-      }
-    });
-  }
+    // userId can be added later for multi-user support
+    // userId: {
+    //   type: mongoose.Schema.Types.ObjectId,
+    //   ref: "User",
+    //   required: true,
+    // },
+  },
+  {
+    timestamps: true,
+  },
+);
 
-  static getFavourites(callback) {
-    fs.readFile(favouriteDataPath, (err, data) => {
-      callback(!err ? JSON.parse(data) : []);
-    });
-  }
+// Prevent the same home from being added to favourites multiple times
+favouriteSchema.index({ homeId: 1 }, { unique: true });
 
-  static deleteById(delHomeId, callback) {
-    Favourite.getFavourites((homeIds) => {
-      // Convert to string for consistent comparison
-      const delHomeIdStr = String(delHomeId);
-      homeIds = homeIds.filter((homeId) => delHomeIdStr !== String(homeId));
-      fs.writeFile(favouriteDataPath, JSON.stringify(homeIds), callback);
-    });
-  }
-};
+module.exports = mongoose.model("Favourite", favouriteSchema);
