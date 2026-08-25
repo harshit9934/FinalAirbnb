@@ -1,14 +1,21 @@
 // Core Modules
+
 const db = require("../utils/databaseUtil");
 
 module.exports = class Home {
   constructor(houseName, price, location, rating, photo, description, id) {
     this.houseName = houseName;
+
     this.price = price;
+
     this.location = location;
+
     this.rating = rating;
+
     this.photo = photo;
+
     this.description = description;
+
     this.id = id;
   }
 
@@ -16,27 +23,40 @@ module.exports = class Home {
     if (this.id) {
       // update
       return db.execute(
-        "UPDATE homes SET houseName=?, price=?, location=?, rating=?, photo=?, description=? WHERE id=?",
+        "UPDATE homes SET homeName=?, price=?, location=?, rating=?, photo=?, description=? WHERE id=?",
+
         [
           this.houseName,
+
           this.price,
+
           this.location,
+
           this.rating,
+
           this.photo,
+
           this.description,
+
           this.id,
         ],
       );
     } else {
       // insert
       return db.execute(
-        "INSERT INTO homes (houseName, price, location, rating, photo, description) VALUES (?, ?, ?, ?, ?, ?)",
+        "INSERT INTO homes (homeName, price, location, rating, photo, description) VALUES (?, ?, ?, ?, ?, ?)",
+
         [
           this.houseName,
+
           this.price,
+
           this.location,
+
           this.rating,
+
           this.photo,
+
           this.description,
         ],
       );

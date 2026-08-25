@@ -20,7 +20,7 @@ app.use("/host", hostRouter);
 
 app.use(express.static(path.join(rootDir, "public")));
 
-const PORT = 3000;
+const PORT = 3015;
 app.listen(PORT, () => {
   console.log(`Server running on address http://localhost:${PORT}`);
 });
