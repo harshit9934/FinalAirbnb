@@ -1,5 +1,5 @@
-const Favourite = require("../models/favourite");
 const Home = require("../models/home");
+const User = require("../models/User.js");
 
 exports.getIndex = (req, res, next) => {
   console.log("session value : ", req.session);
@@ -9,7 +9,8 @@ exports.getIndex = (req, res, next) => {
         registerHome: registeredHomes,
         PageTitle: "airbnb Home",
         currentPage: "index",
-        isLoggedIn: req.isLoggedIn,
+        isLoggedIn: req.session.isLoggedIn || false,
+        user: req.session.user,
       });
     })
     .catch((error) => {
@@ -25,7 +26,8 @@ exports.getHomes = (req, res, next) => {
         registerHome: registeredHomes,
         PageTitle: "Homes List",
         currentPage: "Home",
-        isLoggedIn: req.isLoggedIn,
+        isLoggedIn: req.session.isLoggedIn || false,
+        user: req.session.user,
       });
     })
     .catch((error) => {
@@ -38,67 +40,46 @@ exports.getBookings = (req, res, next) => {
   res.render("store/bookings", {
     PageTitle: "My Bookings",
     currentPage: "bookings",
-    isLoggedIn: req.isLoggedIn,
+    isLoggedIn: req.session.isLoggedIn || false,
+    user: req.session.user,
   });
 };
 
-exports.getFavouriteList = (req, res, next) => {
-  Favourite.find()
-    .populate("homeId")
-    .then((favourites) => {
-      // Extract the populated home objects and filter out null/undefined
-      const favouriteHomes = favourites
-        .map((fav) => fav.homeId)
-        .filter((home) => home); // Filters out null, undefined, and other falsy values
+exports.getFavouriteList = async (req, res, next) => {
+  const userId = req.session.user._id;
+  const user = await User.findById(userId).populate("favouriteHomes");
 
-      console.log(
-        `✅ Rendering ${favouriteHomes.length} valid favourite home(s)`,
-      );
-
-      res.render("store/favourite-list", {
-        registerHome: favouriteHomes,
-        PageTitle: "My Favourites",
-        currentPage: "Favourite",
-        isLoggedIn: req.isLoggedIn,
-      });
-    })
-    .catch((error) => {
-      console.error("Error fetching favourites:", error);
-      next(error);
-    });
+  res.render("store/favourite-list", {
+    favouriteHomes: user.favouriteHomes,
+    PageTitle: "My Favourites",
+    currentPage: "Favourite",
+    isLoggedIn: req.session.isLoggedIn || false,
+    user: req.session.user,
+  });
 };
 
-exports.postAddToFavourite = (req, res, next) => {
+exports.postAddToFavourite = async (req, res, next) => {
   const homeId = req.body.id;
+  const userId = req.session.user._id;
+  const user = await User.findById(userId);
 
-  const favourite = new Favourite({ homeId });
-
-  favourite
-    .save()
-    .then((result) => {
-      console.log("✅ Favourite added:", result);
-    })
-    .catch((err) => {
-      console.error("❌ Error while marking favourite:", err);
-    })
-    .finally(() => {
-      res.redirect("/favourites");
-    });
+  if (!user.favouriteHomes.includes(homeId)) {
+    user.favouriteHomes.push(homeId);
+    await user.save();
+  }
+  res.redirect("/favourites");
 };
 
-exports.postRemoveFromFavourite = (req, res, next) => {
+exports.postRemoveFromFavourite = async (req, res, next) => {
   const homeId = req.params.homeId;
+  const userId = req.session.user._id;
+  const user = await User.findById(userId);
+  if (user.favouriteHomes.includes(homeId)) {
+    user.favouriteHomes = user.favouriteHomes.filter((fav) => fav != homeId);
+    await user.save();
+  }
 
-  Favourite.findOneAndDelete({ homeId })
-    .then((result) => {
-      console.log("✅ Favourite Removed:", result);
-    })
-    .catch((err) => {
-      console.error("❌ Error while removing favourite:", err);
-    })
-    .finally(() => {
-      res.redirect("/favourites");
-    });
+  res.redirect("/favourites");
 };
 
 exports.getHomeDetails = (req, res, next) => {
@@ -114,7 +95,8 @@ exports.getHomeDetails = (req, res, next) => {
         home: home,
         PageTitle: "Home Detail",
         currentPage: "Home",
-        isLoggedIn: req.isLoggedIn,
+        isLoggedIn: req.session.isLoggedIn || false,
+        user: req.session.user,
       });
     })
     .catch((error) => {

@@ -5,7 +5,8 @@ exports.getAddHome = (req, res, next) => {
     PageTitle: "Add Home to Airbnb",
     currentPage: "Add Home",
     editing: false,
-    isLoggedIn: req.isLoggedIn,
+    isLoggedIn: req.session.isLoggedIn || false,
+    user: req.session.user
   });
 };
 
@@ -25,7 +26,8 @@ exports.getEditHome = (req, res, next) => {
         PageTitle: "Edit Home",
         currentPage: "Edit Home",
         editing,
-        isLoggedIn: req.isLoggedIn,
+        isLoggedIn: req.session.isLoggedIn || false,
+        user: req.session.user
       });
     })
     .catch((error) => {
@@ -66,7 +68,8 @@ exports.getHostHomes = (req, res, next) => {
         registerHome,
         PageTitle: "Host Homes List",
         currentPage: "host-homes",
-        isLoggedIn: req.isLoggedIn,
+        isLoggedIn: req.session.isLoggedIn || false,
+        user: req.session.user
       });
     })
     .catch((error) => {
@@ -93,7 +96,8 @@ exports.postAddHome = (req, res, next) => {
       res.render("host/home-added", {
         PageTitle: "Home Added Successfully",
         currentPage: "Home Added",
-        isLoggedIn: req.isLoggedIn,
+        isLoggedIn: req.session.isLoggedIn || false,
+        user: req.session.user
       });
     })
     .catch((error) => {
@@ -119,6 +123,7 @@ exports.addError = (req, res, next) => {
   res.status(404).render("error", {
     PageTitle: "Page Not Found",
     currentPage: "404",
-    isLoggedIn: req.isLoggedIn,
+    isLoggedIn: req.session.isLoggedIn || false,
+    user: req.session.user
   });
 };

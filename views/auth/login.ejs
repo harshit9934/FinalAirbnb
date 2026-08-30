@@ -6,37 +6,146 @@
   <body>
     <%- include('../partials/header.ejs') %>
     <main
-      class="container mx-auto bg-white shadow-lg rounded-lg p-8 mt-10 max-w-xl"
+      class="container mx-auto bg-gradient-to-br from-white to-gray-50 shadow-2xl rounded-3xl p-8 mt-10 max-w-lg border border-gray-200"
     >
-      <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">
-        <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">
+      <div class="text-center mb-8">
+        <div
+          class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-red-500 to-red-600 rounded-full mb-4 shadow-lg"
+        >
+          <svg
+            class="w-8 h-8 text-white"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
+            ></path>
+          </svg>
+        </div>
+        <h1 class="text-3xl font-bold mb-2 text-gray-800">
           Login with your credentials
         </h1>
-      </h1>
-      <form action="/auth/login" method="POST" class="space-y-4">
-        <input
-          type="text"
-          name="username"
-          placeholder="Email / Username"
-          class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-500"
-          required
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder=" Enter Your Password"
-          class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-500"
-          required
-        />
+        <p class="text-gray-500">Welcome back! Please enter your details</p>
+      </div>
+
+      <form action="/auth/login" method="POST" class="space-y-5">
+        <%- include('../partials/error.ejs') %>
+
+        <div class="relative">
+          <label class="block text-sm font-medium text-gray-700 mb-2"
+            >Email / Username</label
+          >
+          <div class="relative">
+            <div
+              class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+            >
+              <svg
+                class="h-5 w-5 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                ></path>
+              </svg>
+            </div>
+            <input
+              type="email"
+              name="email"
+              placeholder="Enter your email "
+              value="<%= typeof oldInput !== 'undefined' && oldInput.email ? oldInput.email : '' %>"
+              class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition duration-200 bg-white"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="relative">
+          <label class="block text-sm font-medium text-gray-700 mb-2"
+            >Password</label
+          >
+          <div class="relative">
+            <div
+              class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+            >
+              <svg
+                class="h-5 w-5 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                ></path>
+              </svg>
+            </div>
+            <input
+              type="password"
+              name="password"
+              placeholder="Enter your password"
+              class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition duration-200 bg-white"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between">
+          <label class="flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              class="w-4 h-4 text-red-500 border-gray-300 rounded focus:ring-red-500 cursor-pointer"
+            />
+            <span class="ml-2 text-sm text-gray-600">Remember me</span>
+          </label>
+          <a href="#" class="text-sm text-red-500 hover:underline"
+            >Forgot password?</a
+          >
+        </div>
 
         <button
           type="submit"
-          value="sign In"
-          class="w-full bg-red-500 text-white py-2 px-4 rounded hover:bg-red-400 transition duration-300"
+          class="w-full bg-gradient-to-r from-red-500 to-red-600 text-white py-3 px-4 rounded-lg hover:from-red-600 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
         >
-          Sign In
+          <span class="flex items-center justify-center gap-2">
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
+              ></path>
+            </svg>
+            Sign In
+          </span>
         </button>
       </form>
+
+      <div class="mt-8 pt-6 border-t border-gray-200">
+        <p class="text-center text-gray-500 text-sm">
+          Don't have an account?
+          <a
+            href="/signup"
+            class="text-red-500 hover:underline font-semibold hover:text-red-600 transition duration-200"
+            >Sign up</a
+          >
+        </p>
+      </div>
     </main>
   </body>
 </html>

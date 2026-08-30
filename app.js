@@ -46,12 +46,18 @@ app.use(
     resave: false, //.Forces session  to be saved back  to the session store , even if not modified
     saveUninitialized: false,
     store: store,
+    cookie: {
+      maxAge: 1000 * 60 * 60 * 24, // 24 hours
+      httpOnly: true,
+      secure: false, // set to true in production with HTTPS
+    },
   }),
 );
 
 //  using for reading cookis mention  inalso in controller  but now by using session
 app.use((req, res, next) => {
-  req.isLoggedIn = req.session.isLoggedIn; // using session to read cookie
+  req.isLoggedIn = req.session.isLoggedIn || false; // using session to read cookie
+  req.user = req.session.user || null; // store user in request
 
   // //req.isLoggedIn = req.get("cookie")
   //   ? req.get("cookie").split("=")[1] === "true"
@@ -75,10 +81,16 @@ app.use(express.static(path.join(rootDir, "public")));
 
 app.use(errorsController.pageNotFound);
 
-const PORT = 3018;
+const PORT = 3019;
 
 mongoose
-  .connect(DB_PATH)
+  .connect(DB_PATH, {
+    ssl: true,
+    tls: true,
+    tlsAllowInvalidCertificates: true,
+    tlsAllowInvalidHostnames: true,
+    serverSelectionTimeoutMS: 5000,
+  })
   .then(() => {
     console.log("Connected to MongoDB:", DB_PATH);
     app.listen(PORT, () => {
