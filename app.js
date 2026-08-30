@@ -27,35 +27,28 @@ const app = express();
 app.set("view engine", "ejs");
 app.set("views", "views");
 
-//making a  new mongodbstore class according to  mongodbstore  and passing the session and mongodburl
+//body parser
+app.use(express.urlencoded());
+
+//making a new mongodbstore class according to mongodbstore and passing the session and mongodburl
 const store = new mongodbstore({
   url: DB_PATH,
   collection: "sessions",
 });
-store.on("error", (error) => {
-  console.log("Session Store Error:", error);
-});
 
-//body parser
-app.use(express.urlencoded());
-
-//midleware for sesion
+//middleware for session
 app.use(
   session({
-    secret: "my-secret", //// secret key used to sign the session  Id and encrypt  session data
-    resave: false, //.Forces session  to be saved back  to the session store , even if not modified
-    saveUninitialized: false,
+    secret: "my-secret", // secret key used to sign the session Id and encrypt session data
+    resave: false, // Forces session to be saved back to the session store, even if not modified
+    saveUninitialized: true,
     store: store,
   }),
 );
 
-//  using for reading cookis mention  inalso in controller  but now by using session
+// Middleware for reading session data
 app.use((req, res, next) => {
   req.isLoggedIn = req.session.isLoggedIn; // using session to read cookie
-
-  // //req.isLoggedIn = req.get("cookie")
-  //   ? req.get("cookie").split("=")[1] === "true"
-  //   : false;
   next();
 });
 
