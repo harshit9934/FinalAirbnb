@@ -27,6 +27,10 @@ const homeSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    rules: {
+      type: String,
+      default: "",
+    },
     description: {
       type: String,
       required: true,

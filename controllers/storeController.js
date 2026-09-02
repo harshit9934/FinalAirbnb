@@ -1,5 +1,7 @@
 const Home = require("../models/home");
 const User = require("../models/User.js");
+const path = require("path");
+const rootDir = require("../utils/pathUtils");
 
 exports.getIndex = (req, res, next) => {
   console.log("session value : ", req.session);
@@ -104,3 +106,30 @@ exports.getHomeDetails = (req, res, next) => {
       next(error);
     });
 };
+
+// for home rules
+exports.getHomeRules = [
+  (req, res, next) => {
+    if (!req.session.isLoggedIn) {
+      return res.redirect("/login");
+    }
+    next();
+  },
+  (req, res, next) => {
+    const homeId = req.params.homeId;
+    Home.findById(homeId)
+      .then((home) => {
+        if (!home || !home.rules) {
+          return res.status(404).send("House rules are not available.");
+        }
+
+        const rulesFileName = path.basename(home.rules);
+        const filePath = path.join(rootDir, "rules", rulesFileName);
+        res.download(filePath, "Rules.pdf");
+      })
+      .catch((error) => {
+        console.error("Error fetching house rules:", error);
+        next(error);
+      });
+  },
+];

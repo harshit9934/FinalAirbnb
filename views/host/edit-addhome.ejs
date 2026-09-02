@@ -11,7 +11,7 @@
       <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">
         <%= editing ? "Edit" : "Register"%>  Home on Airbnb
       </h1>
-      <form action="/host/<%= editing ? "edit-home" : "add-home" %>" method="POST" class="space-y-4">
+      <form action="/host/<%= editing ? "edit-home" : "add-home" %>" method="POST"  enctype="multipart/form-data"   class="space-y-4">
         <% if (editing) { %>
           <input type="hidden" name="homeId" value="<%= home.id %>" />
         <% } %>
@@ -50,11 +50,16 @@
           required
         />
         <input
-          type="text"
+          type="file"
           name="photo"
-          placeholder="Photo URL (optional)"
+          accept="image/*"
           class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-500"
-          value="<%= editing ? home.photo : '' %>"
+        />
+        <input
+          type="file"
+          name="rules"
+          accept="application/pdf,.pdf"
+          class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-500"
         />
         <input
           type="text"

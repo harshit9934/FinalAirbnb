@@ -1,6 +1,7 @@
 // Core Module
 const path = require("path");
 const dns = require("dns");
+const multer = require("multer");
 
 dns.setServers(["1.1.1.1", "8.8.8.8"]);
 
@@ -36,8 +37,62 @@ store.on("error", (error) => {
   console.log("Session Store Error:", error);
 });
 
-//body parser
+// for custom file name
+const randomString = (length) => {
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let result = "";
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return result;
+};
+const fs = require("fs");
+const uploadDir = path.join(__dirname, "uploads");
+const rulesDir = path.join(__dirname, "rules");
+
+// Ensure uploads directory exists
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+if (!fs.existsSync(rulesDir)) {
+  fs.mkdirSync(rulesDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, file.fieldname === "rules" ? rulesDir : uploadDir);
+  },
+  filename: (req, file, cb) => {
+    cb(null, randomString(10) + "-" + file.originalname);
+  },
+});
+
+// for backend ..{ restricting file uploads }
+const fileFilter = (req, file, cb) => {
+  if (file.fieldname === "rules" && file.mimetype === "application/pdf") {
+    cb(null, true);
+  } else if (
+    file.mimetype === "image/jpeg" ||
+    file.mimetype === "image/png" ||
+    file.mimetype === "image/jpg"
+  ) {
+    cb(null, true);
+  } else {
+    cb(null, false);
+  }
+};
+const multerOptions = {
+  storage,
+  fileFilter,
+};
+
+//body parser  // handle urlencode
 app.use(express.urlencoded());
+
+app.use(express.static(path.join(rootDir, "public")));
+app.use("/uploads", express.static(path.join(rootDir, "uploads")));
+app.use("/host/uploads", express.static(path.join(rootDir, "uploads")));
 
 //midleware for sesion
 app.use(
@@ -75,13 +130,18 @@ app.use("/host", (req, res, next) => {
 
   return res.redirect("/login");
 });
+app.use(
+  "/host",
+  multer(multerOptions).fields([
+    { name: "photo", maxCount: 1 },
+    { name: "rules", maxCount: 1 },
+  ]),
+);
 app.use("/host", hostRouter);
-
-app.use(express.static(path.join(rootDir, "public")));
 
 app.use(errorsController.pageNotFound);
 
-const PORT = 3019;
+const PORT = 3020;
 
 mongoose
   .connect(DB_PATH, {

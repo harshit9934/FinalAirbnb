@@ -6,7 +6,7 @@ exports.getAddHome = (req, res, next) => {
     currentPage: "Add Home",
     editing: false,
     isLoggedIn: req.session.isLoggedIn || false,
-    user: req.session.user
+    user: req.session.user,
   });
 };
 
@@ -27,7 +27,7 @@ exports.getEditHome = (req, res, next) => {
         currentPage: "Edit Home",
         editing,
         isLoggedIn: req.session.isLoggedIn || false,
-        user: req.session.user
+        user: req.session.user,
       });
     })
     .catch((error) => {
@@ -37,9 +37,9 @@ exports.getEditHome = (req, res, next) => {
 };
 
 exports.postEditHome = (req, res, next) => {
-  const { homeId, homeName, price, location, rating, photo, description } =
-    req.body;
-
+  const { homeId, homeName, price, location, rating, description } = req.body;
+  const photo = req.files?.photo?.[0];
+  const rules = req.files?.rules?.[0];
   Home.findByIdAndUpdate(
     homeId,
     {
@@ -47,11 +47,13 @@ exports.postEditHome = (req, res, next) => {
       price,
       location,
       rating,
-      photo,
       description,
+      ...(photo && { photo: `/uploads/${photo.filename}` }),
+      ...(rules && { rules: `/rules/${rules.filename}` }),
     },
     { returnDocument: "after" },
   )
+
     .then(() => {
       res.redirect("/host/host-home-list");
     })
@@ -69,7 +71,7 @@ exports.getHostHomes = (req, res, next) => {
         PageTitle: "Host Homes List",
         currentPage: "host-homes",
         isLoggedIn: req.session.isLoggedIn || false,
-        user: req.session.user
+        user: req.session.user,
       });
     })
     .catch((error) => {
@@ -79,14 +81,19 @@ exports.getHostHomes = (req, res, next) => {
 };
 
 exports.postAddHome = (req, res, next) => {
-  const { homeName, price, location, rating, photo, description } = req.body;
-
+  const { homeName, price, location, rating, description } = req.body;
+  const photo = req.files?.photo?.[0];
+  const rules = req.files?.rules?.[0];
+  if (!photo) {
+    return res.status(400).send("No file uploaded.");
+  }
   const home = new Home({
     homeName,
     price,
     location,
     rating,
-    photo,
+    photo: `/uploads/${photo.filename}`,
+    rules: rules ? `/rules/${rules.filename}` : "",
     description,
   });
 
@@ -97,7 +104,7 @@ exports.postAddHome = (req, res, next) => {
         PageTitle: "Home Added Successfully",
         currentPage: "Home Added",
         isLoggedIn: req.session.isLoggedIn || false,
-        user: req.session.user
+        user: req.session.user,
       });
     })
     .catch((error) => {
@@ -124,6 +131,6 @@ exports.addError = (req, res, next) => {
     PageTitle: "Page Not Found",
     currentPage: "404",
     isLoggedIn: req.session.isLoggedIn || false,
-    user: req.session.user
+    user: req.session.user,
   });
 };

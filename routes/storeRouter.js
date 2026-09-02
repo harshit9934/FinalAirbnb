@@ -27,5 +27,8 @@ storeRouter.post(
   storeController.postRemoveFromFavourite,
 );
 
+// for home Rules
+storeRouter.get("/rules/:homeId", storeController.getHomeRules);
+
 // export
 module.exports = storeRouter;
