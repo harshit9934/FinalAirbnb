@@ -30,7 +30,7 @@ app.set("views", "views");
 
 //making a  new mongodbstore class according to  mongodbstore  and passing the session and mongodburl
 const store = new mongodbstore({
-  url: DB_PATH,
+  uri: DB_PATH,
   collection: "sessions",
 });
 store.on("error", (error) => {
@@ -141,7 +141,7 @@ app.use("/host", hostRouter);
 
 app.use(errorsController.pageNotFound);
 
-const PORT = 3020;
+const PORT = process.env.PORT || 3020;
 
 mongoose
   .connect(DB_PATH, {
@@ -153,8 +153,8 @@ mongoose
   })
   .then(() => {
     console.log("Connected to MongoDB:", DB_PATH);
-    app.listen(PORT, () => {
-      console.log(`Server running on address http://localhost:${PORT}`);
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`Server running on port ${PORT}`);
     });
   })
   .catch((err) => {
