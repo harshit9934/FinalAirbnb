@@ -1,28 +1,30 @@
 # 🏠 Airbnb Clone
 
-A full-stack **Airbnb-inspired web application** built using **Node.js, Express.js, MongoDB, and EJS**. This project allows users to explore property listings, create accounts, manage listings, and interact with properties through a complete backend-driven web application.
+A full-stack **Airbnb Clone** web application built using **Node.js, Express.js, MongoDB, Mongoose, and EJS**.
+
+This project replicates the core functionality of an Airbnb-style platform where users can explore properties, create accounts, manage listings, upload images, and add reviews and ratings.
 
 ## 🚀 Live Demo
 
-🔗 **[View Live Project](https://finalairbnb-8.onrender.com/)**
+🔗 **https://finalairbnb-8.onrender.com/**
 
 ## ✨ Features
 
-* 🔐 User Signup & Login
+* 🔐 User Registration & Login
 * 🔑 Session-based Authentication
-* 🏠 Property/Home Listings
-* ➕ Add New Property Listings
-* ✏️ Edit & Update Listings
-* 🗑️ Delete Listings
-* 📸 Image Upload Support
-* ⭐ Property Ratings & Reviews
+* 🏠 Browse Property Listings
+* 🔍 View Property Details
+* ➕ Add New Properties
+* ✏️ Edit Property Listings
+* 🗑️ Delete Property Listings
+* 📸 Image Upload
+* ⭐ Reviews & Ratings
 * 💰 Property Pricing
-* 📍 Location-based Property Information
-* 📖 Detailed Property Pages
-* 📱 Responsive User Interface
-* 🔒 Protected Routes & Authentication
-* 🗄️ MongoDB Database Integration
-* 🌐 Deployed on Render
+* 📍 Property Location
+* 🔒 Protected Routes
+* 🗄️ MongoDB Database
+* 📱 Responsive UI
+* 🌐 Live Deployment on Render
 
 ## 🛠️ Tech Stack
 
@@ -32,7 +34,7 @@ A full-stack **Airbnb-inspired web application** built using **Node.js, Express.
 * CSS3
 * JavaScript
 * EJS
-* Bootstrap / Tailwind CSS
+* Bootstrap
 
 ### Backend
 
@@ -45,11 +47,32 @@ A full-stack **Airbnb-inspired web application** built using **Node.js, Express.
 * MongoDB
 * Mongoose
 
-### Other Tools
+### Other Technologies
 
-* Git & GitHub
 * Multer
+* Git
+* GitHub
 * Render
+
+## 🏗️ Architecture
+
+The project follows the **MVC (Model-View-Controller)** architecture.
+
+```text
+                 Airbnb Clone
+                      │
+        ┌─────────────┼─────────────┐
+        │             │             │
+      Model        Controller      View
+        │             │             │
+    MongoDB       Business Logic    EJS
+        │             │             │
+        └─────────────┼─────────────┘
+                      │
+                   Express
+                      │
+                   Node.js
+```
 
 ## 📂 Project Structure
 
@@ -57,12 +80,24 @@ A full-stack **Airbnb-inspired web application** built using **Node.js, Express.
 Airbnb-Clone/
 │
 ├── controllers/
+│   ├── authController.js
+│   ├── hostController.js
+│   └── ...
+│
 ├── models/
+│   ├── User.js
+│   ├── Home.js
+│   └── ...
+│
 ├── routes/
+│   ├── authRouter.js
+│   ├── hostRouter.js
+│   └── ...
+│
 ├── views/
-│   ├── layouts/
 │   ├── auth/
 │   ├── homes/
+│   ├── layouts/
 │   └── ...
 │
 ├── public/
@@ -71,44 +106,74 @@ Airbnb-Clone/
 │   └── images/
 │
 ├── uploads/
+│
 ├── app.js
 ├── package.json
 ├── package-lock.json
 └── README.md
 ```
 
-## 🔄 Application Flow
+## 🔄 How It Works
 
 ```text
 User
-  ↓
-Signup / Login
-  ↓
-Authentication & Session
-  ↓
+  │
+  ▼
+Register / Login
+  │
+  ▼
+Session Authentication
+  │
+  ▼
 Browse Properties
-  ↓
-View Property Details
-  ↓
-Create / Edit / Delete Listings
-  ↓
-Reviews & Ratings
-  ↓
+  │
+  ├── View Details
+  │
+  ├── Add Property
+  │
+  ├── Edit Property
+  │
+  ├── Delete Property
+  │
+  └── Add Reviews & Ratings
+  │
+  ▼
 MongoDB
 ```
 
 ## 🗄️ Database
 
-The application uses **MongoDB** with **Mongoose** for storing and managing:
+MongoDB is used as the primary database with **Mongoose** for data modeling.
 
-* User information
+The application stores information such as:
+
+* Users
 * Property listings
 * Property details
+* Locations
+* Prices
+* Images
 * Reviews
 * Ratings
-* Images
 
-## ⚙️ Installation & Setup
+## 🔐 Authentication
+
+The application implements authentication using:
+
+* User Registration
+* User Login
+* Express Session
+* Protected Routes
+* Logout
+* Session-based Authorization
+
+## 📸 Image Upload
+
+Property images can be uploaded and associated with individual property listings.
+
+The project uses **Multer** to handle image/file uploads.
+
+## ⚙️ Installation
 
 ### 1. Clone the Repository
 
@@ -128,7 +193,7 @@ cd YOUR-REPOSITORY
 npm install
 ```
 
-### 4. Create Environment Variables
+### 4. Configure Environment Variables
 
 Create a `.env` file in the root directory:
 
@@ -137,61 +202,79 @@ MONGODB_URI=your_mongodb_connection_string
 SESSION_SECRET=your_session_secret
 ```
 
-### 5. Start the Application
+### 5. Start the Server
 
 ```bash
 npm start
 ```
 
-Or, if you use nodemon:
+For development:
 
 ```bash
 npm run dev
 ```
 
-The application will run on:
+The application will run locally at:
 
 ```text
 http://localhost:3000
 ```
 
-## 🌐 Live Application
+## 🌐 Deployment
 
-The project is deployed and available online:
+The application is deployed on **Render**.
+
+### Live Application
 
 **https://finalairbnb-8.onrender.com/**
 
-## 🎯 Project Objective
+## 🎯 What I Learned
 
-The main objective of this project was to build a real-world, full-stack web application while learning and implementing:
+Through this project, I gained practical experience with:
 
-* RESTful routing
-* MVC architecture
-* Authentication & authorization
-* Session management
-* CRUD operations
-* MongoDB database operations
-* Image/file uploads
-* Server-side rendering with EJS
-* Express.js middleware
-* Deployment using Render
+* Node.js
+* Express.js
+* MongoDB
+* Mongoose
+* EJS
+* MVC Architecture
+* RESTful Routing
+* CRUD Operations
+* Authentication & Authorization
+* Session Management
+* Middleware
+* Image Uploads
+* Form Handling
+* Database Integration
+* Git & GitHub
+* Deployment with Render
 
-## 📸 Project Preview
+## 🚀 Future Improvements
 
-The application provides an Airbnb-style experience where users can browse available homes with information such as:
+Some features that can be added in the future:
 
-* Property name
-* Price per night
-* Location
-* Rating
-* Booking option
+* 💳 Online Payment Integration
+* 🗺️ Interactive Maps
+* 🔎 Advanced Search & Filtering
+* ❤️ Wishlist/Favorites
+* 📧 Email Notifications
+* 👤 User Profile Management
+* 📱 Improved Mobile Experience
+* ☁️ Cloud Image Storage
 
 ## 👨‍💻 Author
 
 **Harshit Maurya**
 
-B.Tech CSE (AI/ML)
+B.Tech Computer Science & Engineering (AI/ML)
 
-### ⭐ If you like this project
+## ⭐ Support
 
-Give this repository a **star ⭐** and feel free to explore the code!
+If you found this project useful or interesting, consider giving the repository a **⭐ Star** on GitHub!
+
+---
+
+### 🔗 Live Project
+
+**Airbnb Clone:**
+https://finalairbnb-8.onrender.com/
